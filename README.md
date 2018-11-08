@@ -1,8 +1,8 @@
 # nullfsvfs
 a virtual file system that behaves like /dev/null
 
-Note: im far from anything but a kernel dev and this might crash your system.
-Any hints highly appreciated!
+Note: im not a kernel dev and this might crash your system.  Any hints highly
+appreciated!
 
 Mostly based on the ramfs example from the linux kernel and the lwnfs file
 system.
@@ -41,4 +41,10 @@ make[1]: Leaving directory '/usr/src/linux-headers-4.18.5'
 # 
 ```
 
+### todos/ideas
 
+* replace simple_statfs call with real one, show free space of a directory that
+  can be passed during kernel module load
+* keep track of sizes of the files that have been written, so stat returns
+  the real file size.
+* return the size of the files with contents like /dev/zero
