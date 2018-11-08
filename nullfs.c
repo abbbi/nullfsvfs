@@ -204,6 +204,13 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
 /*
  * Stuff to pass in when registering the filesystem.
  */
+
+static void nullfs_kill_sb(struct super_block *sb)
+{
+        kfree(sb->s_fs_info);
+        kill_litter_super(sb);
+}
+
 static struct dentry * nullfs_get_super(struct file_system_type *fst,
         int flags, const char *devname, void *data)
 {
@@ -213,7 +220,7 @@ static struct dentry * nullfs_get_super(struct file_system_type *fst,
 static struct file_system_type nullfs_type = {
     .name       = "nullfs",
     .mount      = nullfs_get_super,
-    .kill_sb    = kill_litter_super,
+    .kill_sb    = nullfs_kill_sb,
 };
 
 /*
