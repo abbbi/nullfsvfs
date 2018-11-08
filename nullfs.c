@@ -28,8 +28,8 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michael Ablassmeier");
-#define RAMFS_MAGIC 0x19980123
-#define RAMFS_DEFAULT_MODE  0755
+#define NULLFS_MAGIC 0x19980123
+#define NULLFS_DEFAULT_MODE  0755
 
 
 static ssize_t write_null(struct file *filp, const char *buf,
@@ -122,7 +122,8 @@ nullfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
     return error;
 }
 
-static int nullfs_mkdir(struct inode * dir, struct dentry * dentry, umode_t mode)
+static int 
+nullfs_mkdir(struct inode * dir, struct dentry * dentry, umode_t mode)
 {
     int retval = nullfs_mknod(dir, dentry, mode | S_IFDIR, 0);
     if (!retval)
@@ -130,7 +131,8 @@ static int nullfs_mkdir(struct inode * dir, struct dentry * dentry, umode_t mode
     return retval;
 }
 
-static int nullfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
+static int
+nullfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
 {
     struct inode *inode;
     int error = -ENOSPC;
@@ -185,7 +187,7 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
     sb->s_maxbytes      = MAX_LFS_FILESIZE;
     sb->s_blocksize     = PAGE_SIZE;
     sb->s_blocksize_bits    = PAGE_SHIFT;
-    sb->s_magic     = RAMFS_MAGIC;
+    sb->s_magic     = NULLFS_MAGIC;
     sb->s_time_gran     = 1;
 
     inode = nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0);
@@ -200,32 +202,31 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
 /*
  * Stuff to pass in when registering the filesystem.
  */
-static struct dentry * lfs_get_super(struct file_system_type *fst,
+static struct dentry * nullfs_get_super(struct file_system_type *fst,
         int flags, const char *devname, void *data)
 {
     return mount_nodev(fst, flags, data, nullfs_fill_super);
 }
 
-static struct file_system_type lfs_type = {
-//    .owner = THIS_MODULE,
-    .name    = "nullfs",
-    .mount  = lfs_get_super,
+static struct file_system_type nullfs_type = {
+    .name       = "nullfs",
+    .mount      = nullfs_get_super,
     .kill_sb    = kill_litter_super,
 };
 
 /*
  * Get things set up.
  */
-static int __init lfs_init(void)
+static int __init nullfs_init(void)
 {
-    return register_filesystem(&lfs_type);
+    return register_filesystem(&nullfs_type);
 }
 
-static void __exit lfs_exit(void)
+static void __exit nullfs_exit(void)
 {
-    unregister_filesystem(&lfs_type);
+    unregister_filesystem(&nullfs_type);
 }
 
-module_init(lfs_init);
-module_exit(lfs_exit);
+module_init(nullfs_init);
+module_exit(nullfs_exit);
 
