@@ -1,8 +1,12 @@
 /*
  * Nullfs.
+ *
+ * Copyright 2018 Michael Ablassmeier <abi@grinser.de>
  * 
- * Originated from lwfns by:
+ * Originated and based on work by:
+ *
  * Copyright 2002, 2003 Jonathan Corbet <corbet@lwn.net>
+ * 
  * And ramfs from the linux kernel
  *
  * This file may be redistributed under the terms of the GNU GPL.
@@ -15,19 +19,16 @@
 #include <linux/pagemap.h>
 #include <linux/init.h>
 #include <linux/module.h>
-#include <linux/pagemap.h> /* PAGE_CACHE_SIZE */
-#include <linux/fs.h> /* This is where libfs stuff is declared */
+#include <linux/pagemap.h> 
+#include <linux/fs.h> 
 #include <linux/slab.h>
 #include "internal.h"
-#include <asm/atomic.h>
-#include <asm/uaccess.h>    /* copy_to_user */
 #include <linux/mm.h>
-#include <linux/ramfs.h>
 #include <linux/sched.h>
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Jonathan Corbet");
-#define RAMFS_MAGIC 0x19980122
+MODULE_AUTHOR("Michael Ablassmeier");
+#define RAMFS_MAGIC 0x19980123
 #define RAMFS_DEFAULT_MODE  0755
 
 
