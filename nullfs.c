@@ -31,7 +31,6 @@ MODULE_AUTHOR("Michael Ablassmeier");
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE  0755
 
-
 static ssize_t write_null(struct file *filp, const char *buf,
                 size_t count, loff_t *offset) {
 
@@ -80,7 +79,11 @@ struct inode *nullfs_get_inode(struct super_block *sb,
         inode->i_mapping->a_ops = &nullfs_aops; 
         mapping_set_gfp_mask(inode->i_mapping, GFP_HIGHUSER);
         mapping_set_unevictable(inode->i_mapping);
+#ifndef CURRENT_TIME
         inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);
+#else
+        inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+#endif
         switch (mode & S_IFMT) {
         default:
             init_special_inode(inode, mode, dev);
@@ -116,7 +119,11 @@ nullfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
         d_instantiate(dentry, inode);
         dget(dentry);   /* Extra count - pin the dentry in core */
         error = 0;
+#ifndef CURRENT_TIME
         dir->i_mtime = dir->i_ctime = current_time(dir);
+#else
+        dir->i_mtime = dir->i_ctime = CURRENT_TIME;
+#endif
     }
     return error;
 }
@@ -143,7 +150,11 @@ nullfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
         if (!error) {
             d_instantiate(dentry, inode);
             dget(dentry);
+#ifndef CURRENT_TIME
             dir->i_mtime = dir->i_ctime = current_time(dir);
+#else
+            dir->i_mtime = dir->i_ctime = CURRENT_TIME;
+#endif
         } else
             iput(inode);
     }
