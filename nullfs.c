@@ -61,6 +61,7 @@ static const struct address_space_operations nullfs_aops = {
 
 
 static const struct inode_operations nullfs_dir_inode_operations;
+static const struct super_operations nullfs_ops;
 
 struct nullfs_mount_opts {
     umode_t mode;
@@ -184,11 +185,12 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
     if (!fsi)
         return -ENOMEM;
 
-    sb->s_maxbytes      = MAX_LFS_FILESIZE;
-    sb->s_blocksize     = PAGE_SIZE;
-    sb->s_blocksize_bits    = PAGE_SHIFT;
-    sb->s_magic     = NULLFS_MAGIC;
-    sb->s_time_gran     = 1;
+    sb->s_maxbytes       = MAX_LFS_FILESIZE;
+    sb->s_blocksize      = PAGE_SIZE;
+    sb->s_blocksize_bits = PAGE_SHIFT;
+    sb->s_magic          = NULLFS_MAGIC;
+    sb->s_op             = &nullfs_ops;
+    sb->s_time_gran      = 1;
 
     inode = nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0);
     sb->s_root = d_make_root(inode);
