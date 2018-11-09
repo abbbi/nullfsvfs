@@ -25,6 +25,7 @@
 #include "internal.h"
 #include <linux/mm.h>
 #include <linux/sched.h>
+#include <linux/statfs.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michael Ablassmeier");
@@ -33,7 +34,6 @@ MODULE_AUTHOR("Michael Ablassmeier");
 
 static ssize_t write_null(struct file *filp, const char *buf,
                 size_t count, loff_t *offset) {
-
     return count;
 }
 static ssize_t read_null(struct file *filp, char *buf,
@@ -180,8 +180,22 @@ static const struct inode_operations nullfs_dir_inode_operations = {
     .rename     = simple_rename,
 };
 
+int nullfs_statfs(struct dentry *dentry, struct kstatfs *buf)
+{
+    buf->f_type   = dentry->d_sb->s_magic;
+    buf->f_bsize  = 1024;
+    buf->f_blocks = 100;
+    buf->f_files  = 100;
+    buf->f_ffree  = 100;
+    buf->f_frsize = 10000;
+    buf->f_bfree  = 1;
+    buf->f_bavail = 1000000000;
+    buf->f_namelen = NAME_MAX;
+    return 0;
+}
+
 static const struct super_operations nullfs_ops = {
-    .statfs     = simple_statfs
+    .statfs     = nullfs_statfs
 };
 
 int nullfs_fill_super(struct super_block *sb, void *data, int silent)
