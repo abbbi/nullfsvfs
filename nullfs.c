@@ -41,6 +41,7 @@ static ssize_t write_null(struct file *filp, const char *buf,
      **/
     struct inode *inode = file_inode(filp);
     inode->i_size += count;
+    inode->i_blocks += 1;
     return count;
 }
 
