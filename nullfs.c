@@ -52,7 +52,7 @@ static ssize_t read_null(struct file *filp, char *buf,
 const struct file_operations nullfs_file_operations = {
     .write  = write_null,
     .read   = read_null,
-    .llseek = generic_file_llseek,
+    .llseek = noop_llseek,
     .fsync  = noop_fsync
 };
 
