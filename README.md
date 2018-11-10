@@ -41,6 +41,16 @@ make[1]: Leaving directory '/usr/src/linux-headers-4.18.5'
 # 
 ```
 
+File size is preserved to work around applications that do size checks:
+
+```
+# stat -c%s proxmox.iso 
+641517568
+# cp proxmox.iso /sinkhole/
+# stat -c%s /sinkhole/proxmox.iso 
+641517568
+```
+
 ### todos/ideas
 
 * replace simple_statfs call with real one, show free space of a directory that
