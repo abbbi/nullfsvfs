@@ -43,7 +43,9 @@ static ssize_t read_null(struct file *filp, char *buf,
 
 const struct file_operations nullfs_file_operations = {
     .write  = write_null,
-    .read   = read_null
+    .read   = read_null,
+    .llseek = generic_file_llseek,
+    .fsync  = noop_fsync
 };
 
 const struct inode_operations nullfs_file_inode_operations = {
