@@ -34,8 +34,16 @@ MODULE_AUTHOR("Michael Ablassmeier");
 
 static ssize_t write_null(struct file *filp, const char *buf,
                 size_t count, loff_t *offset) {
+
+    /**
+     * update inode size to the byte count we pretend
+     * to write
+     **/
+    struct inode *inode = file_inode(filp);
+    inode->i_size += count;
     return count;
 }
+
 static ssize_t read_null(struct file *filp, char *buf,
                 size_t count, loff_t *offset) {
     return 0;
@@ -99,12 +107,10 @@ struct inode *nullfs_get_inode(struct super_block *sb,
             inode->i_fop = &simple_dir_operations;
             inc_nlink(inode);
             break;
-		
         case S_IFLNK:
             inode->i_op = &page_symlink_inode_operations;
             inode_nohighmem(inode);
             break;
-		
         }
     }
     return inode;
@@ -202,7 +208,8 @@ int nullfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 }
 
 static const struct super_operations nullfs_ops = {
-    .statfs     = nullfs_statfs
+    .statfs     = nullfs_statfs,
+    .drop_inode = generic_delete_inode
 };
 
 int nullfs_fill_super(struct super_block *sb, void *data, int silent)

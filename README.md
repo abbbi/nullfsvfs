@@ -45,6 +45,4 @@ make[1]: Leaving directory '/usr/src/linux-headers-4.18.5'
 
 * replace simple_statfs call with real one, show free space of a directory that
   can be passed during kernel module load
-* keep track of sizes of the files that have been written, so stat returns
-  the real file size.
 * return the size of the files with contents like /dev/zero
