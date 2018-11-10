@@ -117,7 +117,6 @@ struct inode *nullfs_get_inode(struct super_block *sb,
     return inode;
 }
 
-
 static int
 nullfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
 {
@@ -125,6 +124,12 @@ nullfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
     int error = -ENOSPC;
 
     if (inode) {
+        /**
+         * pretend created directories some size
+         **/
+        if(mode & S_IFDIR) {
+            inode->i_size = PAGE_SIZE;
+        }
         d_instantiate(dentry, inode);
         dget(dentry);   /* Extra count - pin the dentry in core */
         error = 0;
