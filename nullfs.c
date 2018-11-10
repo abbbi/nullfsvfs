@@ -182,14 +182,19 @@ static const struct inode_operations nullfs_dir_inode_operations = {
 
 int nullfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 {
-    buf->f_type   = dentry->d_sb->s_magic;
-    buf->f_bsize  = 1024;
-    buf->f_blocks = 100;
-    buf->f_files  = 100;
-    buf->f_ffree  = 100;
-    buf->f_frsize = 10000;
-    buf->f_bfree  = 1;
-    buf->f_bavail = 1000000000;
+    /**
+     * Software this is used with checks for free space
+     * constantly, so we need to tell there is allways free 
+     * space
+     *
+     * Filesystem      Size  Used Avail Use% Mounted on
+     * none            382G   39G  344G  10% /my
+     **/
+    buf->f_type  = dentry->d_sb->s_magic;
+    buf->f_bsize = dentry->d_sb->s_blocksize;
+    buf->f_blocks = 100000000;
+    buf->f_bfree =  90000000;
+    buf->f_bavail = 90000000;
     buf->f_namelen = NAME_MAX;
     return 0;
 }
