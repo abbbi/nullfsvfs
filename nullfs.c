@@ -22,10 +22,11 @@
 #include <linux/pagemap.h> 
 #include <linux/fs.h> 
 #include <linux/slab.h>
-#include "internal.h"
 #include <linux/mm.h>
 #include <linux/sched.h>
 #include <linux/statfs.h>
+
+#include "internal.h"
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michael Ablassmeier");
@@ -40,8 +41,7 @@ static ssize_t write_null(struct file *filp, const char *buf,
      * to write
      **/
     struct inode *inode = file_inode(filp);
-    inode->i_size += count;
-    inode->i_blocks += 1;
+    i_size_write(inode, (inode->i_size + count));
     return count;
 }
 
