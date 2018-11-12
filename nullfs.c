@@ -15,6 +15,7 @@
  * written data is sent to a blackhole. May be used for performance
  * testing etc..
  */
+#include <linux/version.h>
 #include <linux/kernel.h>
 #include <linux/pagemap.h>
 #include <linux/init.h>
@@ -26,19 +27,36 @@
 #include <linux/sched.h>
 #include <linux/statfs.h>
 
-#include "internal.h"
-
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michael Ablassmeier");
+
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE  0755
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+static int nullfs_getattr(const struct path *path, struct kstat *stat,
+					 u32 request_mask, unsigned int flags)
+{
+		struct inode *inode = path->dentry->d_inode;
+#else
+		static int nullfs_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
+		{
+				struct inode *inode = dentry->d_inode;
+#endif
+
+	generic_fillattr(inode, stat);
+	/**
+	 * TODO: this doesnt work out for smaller files
+	 **/
+	stat->blocks = ((inode->i_size - 1) >> 9) + 1;
+	return 0;
+}
 
 static ssize_t write_null(struct file *filp, const char *buf,
                 size_t count, loff_t *offset) {
 
     /**
-     * update inode size to the byte count we pretend
-     * to write
+     * keep track of size
      **/
     struct inode *inode = file_inode(filp);
     i_size_write(inode, (inode->i_size + count));
@@ -59,7 +77,7 @@ const struct file_operations nullfs_file_operations = {
 
 const struct inode_operations nullfs_file_inode_operations = {
     .setattr    = simple_setattr,
-    .getattr    = simple_getattr,
+    .getattr    = nullfs_getattr,
 };
 
 static const struct address_space_operations nullfs_aops = {
