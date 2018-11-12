@@ -17,14 +17,11 @@
  */
 #include <linux/version.h>
 #include <linux/kernel.h>
-#include <linux/pagemap.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/pagemap.h> 
 #include <linux/fs.h> 
 #include <linux/slab.h>
-#include <linux/mm.h>
-#include <linux/sched.h>
 #include <linux/statfs.h>
 
 MODULE_LICENSE("GPL");
@@ -54,7 +51,6 @@ static int nullfs_getattr(const struct path *path, struct kstat *stat,
 
 static ssize_t write_null(struct file *filp, const char *buf,
                 size_t count, loff_t *offset) {
-
     /**
      * keep track of size
      **/
