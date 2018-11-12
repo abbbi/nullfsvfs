@@ -1,0 +1,15 @@
+Source: nullfsvfs
+Section: unknown
+Priority: optional
+Maintainer: root <root@debian>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.8
+Homepage: <insert the upstream URL, if relevant>
+#Vcs-Git: https://anonscm.debian.org/collab-maint/nullfsvfs-0.1.git
+#Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/nullfsvfs-0.1.git
+
+Package: nullfsvfs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
