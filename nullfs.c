@@ -51,6 +51,7 @@ static int nullfs_getattr(const struct path *path, struct kstat *stat,
 	return 0;
 }
 
+
 static ssize_t write_null(struct file *filp, const char *buf,
                 size_t count, loff_t *offset) {
 
@@ -198,7 +199,6 @@ static int nullfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
     return nullfs_mknod(dir, dentry, mode | S_IFREG, 0);
 }
 
-
 static const struct inode_operations nullfs_dir_inode_operations = {
     .create     = nullfs_create,
     .lookup     = simple_lookup,
@@ -209,6 +209,7 @@ static const struct inode_operations nullfs_dir_inode_operations = {
     .rmdir      = simple_rmdir,
     .mknod      = nullfs_mknod,
     .rename     = simple_rename,
+    .getattr    = nullfs_getattr,
 };
 
 int nullfs_statfs(struct dentry *dentry, struct kstatfs *buf)
