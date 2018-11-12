@@ -282,6 +282,7 @@ static struct file_system_type nullfs_type = {
     .name       = "nullfs",
     .mount      = nullfs_get_super,
     .kill_sb    = nullfs_kill_sb,
+    .owner      = THIS_MODULE
 };
 
 /*
