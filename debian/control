@@ -2,7 +2,7 @@ Source: nullfsvfs
 Section: unknown
 Priority: optional
 Maintainer: root <root@debian>
-Build-Depends: debhelper (>= 9)
+Build-Depends: debhelper (>= 9), dkms
 Standards-Version: 3.9.8
 Homepage: <insert the upstream URL, if relevant>
 #Vcs-Git: https://anonscm.debian.org/collab-maint/nullfsvfs-0.1.git
