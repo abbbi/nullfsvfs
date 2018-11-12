@@ -44,13 +44,10 @@ static int nullfs_getattr(const struct path *path, struct kstat *stat,
 				struct inode *inode = dentry->d_inode;
 #endif
 
+	unsigned long npages;
 	generic_fillattr(inode, stat);
-	/**
-	 * TODO: this doesnt work out for smaller files
-	 * we should return the right amout of blocks for
-	 * each file!
-	 **/
-	stat->blocks = ((inode->i_size - 1) >> 9) + 1;
+	npages = (inode->i_size + PAGE_SIZE - 1) >> PAGE_SHIFT;
+	stat->blocks = npages << (PAGE_SHIFT - 9);
 	return 0;
 }
 
