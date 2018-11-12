@@ -1,9 +1,6 @@
 # nullfsvfs
 a virtual file system that behaves like /dev/null
 
-Note: im not a kernel dev and this might crash your system.  Any hints highly
-appreciated!
-
 Mostly based on the ramfs example from the linux kernel and the lwnfs file
 system.
 
@@ -16,6 +13,9 @@ does not store any data.
 
 In my tests i could get up to 3.85 Gib/s so it should be fine for performance
 tests that need directory operations.
+
+
+![alt text](https://github.com/abbbi/nullfsvfs/raw/master/nullfs.jpg)
 
 ### usage
 ```
