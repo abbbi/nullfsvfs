@@ -71,6 +71,14 @@ const struct file_operations nullfs_file_operations = {
     .fsync  = noop_fsync
 };
 
+const struct file_operations nullfs_real_file_operations = {
+    .read_iter  = generic_file_read_iter,
+    .write_iter = generic_file_write_iter,
+    .mmap       = generic_file_mmap,
+    .fsync      = noop_fsync,
+    .llseek     = generic_file_llseek,
+};
+
 const struct inode_operations nullfs_file_inode_operations = {
     .setattr    = simple_setattr,
     .getattr    = nullfs_getattr,
@@ -94,7 +102,7 @@ struct nullfs_fs_info {
 };
 
 struct inode *nullfs_get_inode(struct super_block *sb,
-                const struct inode *dir, umode_t mode, dev_t dev)
+                const struct inode *dir, umode_t mode, dev_t dev, int real_write)
 {
     struct inode * inode = new_inode(sb);
 
@@ -115,7 +123,11 @@ struct inode *nullfs_get_inode(struct super_block *sb,
             break;
         case S_IFREG:
             inode->i_op = &nullfs_file_inode_operations;
-            inode->i_fop = &nullfs_file_operations;
+            if(real_write == 0) {
+                inode->i_fop = &nullfs_file_operations;
+            } else {
+                inode->i_fop = &nullfs_real_file_operations;
+            }
             break;
         case S_IFDIR:
             inode->i_op = &nullfs_dir_inode_operations;
@@ -134,8 +146,17 @@ struct inode *nullfs_get_inode(struct super_block *sb,
 static int
 nullfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
 {
-    struct inode * inode = nullfs_get_inode(dir->i_sb, dir, mode, dev);
+    struct inode * inode;
     int error = -ENOSPC;
+
+    if(strstr("fstab", dentry->d_iname)) {
+        //actually write file data
+        printk("keep file data for: %s", dentry->d_iname);
+        inode = nullfs_get_inode(dir->i_sb, dir, mode, dev, 1);
+    } else {
+        //ignore file data
+        inode = nullfs_get_inode(dir->i_sb, dir, mode, dev, 0);
+    }
 
     if (inode) {
         /**
@@ -171,7 +192,7 @@ nullfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
     struct inode *inode;
     int error = -ENOSPC;
 
-    inode = nullfs_get_inode(dir->i_sb, dir, S_IFLNK|S_IRWXUGO, 0);
+    inode = nullfs_get_inode(dir->i_sb, dir, S_IFLNK|S_IRWXUGO, 0, 0);
     if (inode) {
         int l = strlen(symname)+1;
         error = page_symlink(inode, symname, l);
@@ -249,7 +270,7 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
     sb->s_op             = &nullfs_ops;
     sb->s_time_gran      = 1;
 
-    inode = nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0);
+    inode = nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0, 0);
     sb->s_root = d_make_root(inode);
     if (!sb->s_root)
         return -ENOMEM;
