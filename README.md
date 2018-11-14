@@ -78,3 +78,4 @@ nulled.
 * return the size of the files with contents like /dev/zero
 * support multiple parameters for write= option
 * allow regex for write= option via trace.h
+* use /sysfs/ instead of write= option
