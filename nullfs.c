@@ -122,7 +122,7 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
     char *option;
     int token;
     char *p;
-    opts->write = "none";
+    opts->write = NULL;
     while ((p = strsep(&data, ",")) != NULL) {
         if (!*p)
             continue;
@@ -141,7 +141,8 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
 static int nullfs_show_options(struct seq_file *m, struct dentry *root)
 {
     struct nullfs_fs_info *fsi = root->d_sb->s_fs_info;
-    seq_printf(m, ",write=%s", fsi->mount_opts.write);
+    if(fsi->mount_opts.write != NULL)
+	seq_printf(m, ",write=%s", fsi->mount_opts.write);
     return 0;
 }
 
@@ -168,11 +169,13 @@ struct inode *nullfs_get_inode(struct super_block *sb,
             break;
         case S_IFREG:
             inode->i_op = &nullfs_file_inode_operations;
-            if(strstr(dentry->d_iname, fsi->mount_opts.write)) {
-                inode->i_fop = &nullfs_real_file_operations;
-            } else {
-                inode->i_fop = &nullfs_file_operations;
-            }
+	    if(fsi->mount_opts.write != NULL) {
+		if(strstr(dentry->d_iname, fsi->mount_opts.write)) {
+			inode->i_fop = &nullfs_real_file_operations;
+			break;
+		}
+	    }
+            inode->i_fop = &nullfs_file_operations;
             break;
         case S_IFDIR:
             inode->i_op = &nullfs_dir_inode_operations;
