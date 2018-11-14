@@ -77,3 +77,4 @@ nulled.
   can be passed during kernel module load
 * return the size of the files with contents like /dev/zero
 * support multiple parameters for write= option
+* allow regex for write= option via trace.h
