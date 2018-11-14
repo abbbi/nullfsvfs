@@ -136,7 +136,7 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
         }
     }
     if(opts->write != NULL)
-	    printk(KERN_INFO "will keep data for files matching: [%s]",
+	    printk(KERN_INFO "nullfs: will keep data for files matching: [%s]",
 			    opts->write);
     return 0;
 }
