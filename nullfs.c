@@ -176,12 +176,12 @@ struct inode *nullfs_get_inode(struct super_block *sb,
             break;
         case S_IFREG:
             inode->i_op = &nullfs_file_inode_operations;
-	    if(fsi->mount_opts.write != NULL) {
-		if(strstr(dentry->d_iname, fsi->mount_opts.write)) {
-			inode->i_fop = &nullfs_real_file_operations;
-			break;
-		}
-	    }
+	        if(fsi->mount_opts.write != NULL) {
+		        if(strstr(dentry->d_iname, fsi->mount_opts.write)) {
+			        inode->i_fop = &nullfs_real_file_operations;
+			        break;
+		        }
+	        }
             inode->i_fop = &nullfs_file_operations;
             break;
         case S_IFDIR:
@@ -337,17 +337,24 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
  * Stuff to pass in when registering the filesystem.
  * sysfs etc
  */
-static int exclude;
+static char exclude[100] = "\0";
 static ssize_t exclude_show(struct kobject *kobj, struct kobj_attribute *attr,
 			char *buf)
 {
-	return sprintf(buf, "%d\n", exclude);
+	return sprintf(buf, "%s", exclude);
 }
 
 static ssize_t exclude_store(struct kobject *kobj, struct kobj_attribute *attr,
 			 const char *buf, size_t count)
 {
-	sscanf(buf, "%du", &exclude);
+
+    char dest[100];
+    char *p;
+    memset(dest, '\0', sizeof(dest));
+    p = strchr(buf,'\n');
+    if (p)
+        *p = '\0';
+    strncpy(exclude, buf, sizeof(exclude));
 	return count;
 }
 
