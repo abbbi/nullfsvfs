@@ -36,6 +36,47 @@ MODULE_AUTHOR("Michael Ablassmeier");
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE  0755
 
+/*
+ * sysfs
+ */
+static char exclude[100] = "\0";
+static ssize_t exclude_show(struct kobject *kobj, struct kobj_attribute *attr,
+			char *buf)
+{
+	return sprintf(buf, "%s", exclude);
+}
+
+static ssize_t exclude_store(struct kobject *kobj, struct kobj_attribute *attr,
+			 const char *buf, size_t count)
+{
+
+    char dest[100];
+    char *p;
+    memset(dest, '\0', sizeof(dest));
+    p = strchr(buf,'\n');
+    if (p)
+        *p = '\0';
+    strncpy(exclude, buf, sizeof(exclude));
+	printk(KERN_INFO "nullfs: will keep data for files matching: [%s]",
+            exclude);
+	return count;
+}
+
+static struct kobj_attribute exclude_attribute =
+	__ATTR(exclude, 0644, exclude_show, exclude_store);
+
+static struct attribute *attrs[] = {
+	&exclude_attribute.attr,
+	NULL,	/* need to NULL terminate the list of attributes */
+};
+static struct attribute_group attr_group = {
+	.attrs = attrs,
+};
+static struct kobject *exclude_kobj;
+
+
+
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
 static int nullfs_getattr(const struct path *path, struct kstat *stat,
 					 u32 request_mask, unsigned int flags)
@@ -177,7 +218,8 @@ struct inode *nullfs_get_inode(struct super_block *sb,
         case S_IFREG:
             inode->i_op = &nullfs_file_inode_operations;
 	        if(fsi->mount_opts.write != NULL) {
-		        if(strstr(dentry->d_iname, fsi->mount_opts.write)) {
+		        if(strstr(dentry->d_iname, fsi->mount_opts.write) ||
+                        strstr(dentry->d_iname, exclude)) {
 			        inode->i_fop = &nullfs_real_file_operations;
 			        break;
 		        }
@@ -332,43 +374,6 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
     return 0;
 }
 
-
-/*
- * Stuff to pass in when registering the filesystem.
- * sysfs etc
- */
-static char exclude[100] = "\0";
-static ssize_t exclude_show(struct kobject *kobj, struct kobj_attribute *attr,
-			char *buf)
-{
-	return sprintf(buf, "%s", exclude);
-}
-
-static ssize_t exclude_store(struct kobject *kobj, struct kobj_attribute *attr,
-			 const char *buf, size_t count)
-{
-
-    char dest[100];
-    char *p;
-    memset(dest, '\0', sizeof(dest));
-    p = strchr(buf,'\n');
-    if (p)
-        *p = '\0';
-    strncpy(exclude, buf, sizeof(exclude));
-	return count;
-}
-
-static struct kobj_attribute exclude_attribute =
-	__ATTR(exclude, 0644, exclude_show, exclude_store);
-
-static struct attribute *attrs[] = {
-	&exclude_attribute.attr,
-	NULL,	/* need to NULL terminate the list of attributes */
-};
-static struct attribute_group attr_group = {
-	.attrs = attrs,
-};
-static struct kobject *exclude_kobj;
 static void nullfs_kill_sb(struct super_block *sb)
 {
         kfree(sb->s_fs_info);
