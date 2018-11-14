@@ -31,7 +31,7 @@ MODULE_AUTHOR("Michael Ablassmeier");
 #define NULLFS_DEFAULT_MODE  0755
 
 /*
- * sysfs
+ * sysfs handlers
  */
 static char exclude[100] = "\0";
 static ssize_t exclude_show(struct kobject *kobj, struct kobj_attribute *attr,
@@ -43,7 +43,6 @@ static ssize_t exclude_show(struct kobject *kobj, struct kobj_attribute *attr,
 static ssize_t exclude_store(struct kobject *kobj, struct kobj_attribute *attr,
 			 const char *buf, size_t count)
 {
-
     char dest[100];
     char *p;
     memset(dest, '\0', sizeof(dest));
@@ -69,8 +68,9 @@ static struct attribute_group attr_group = {
 static struct kobject *exclude_kobj;
 
 
-
-
+/**
+ * regular filesystem handlers, inode handling etc..
+ **/
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
 static int nullfs_getattr(const struct path *path, struct kstat *stat,
 					 u32 request_mask, unsigned int flags)
@@ -294,7 +294,6 @@ nullfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
     return error;
 }
 
-
 static int nullfs_create(struct inode *dir, struct dentry *dentry, umode_t mode, bool excl)
 {
     return nullfs_mknod(dir, dentry, mode | S_IFREG, 0);
@@ -368,6 +367,9 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
     return 0;
 }
 
+/**
+ * setup / register and destroy filesystem
+ **/
 static void nullfs_kill_sb(struct super_block *sb)
 {
         kfree(sb->s_fs_info);
@@ -387,9 +389,6 @@ static struct file_system_type nullfs_type = {
     .owner      = THIS_MODULE
 };
 
-/*
- * Get things set up.
- */
 static int __init nullfs_init(void)
 {
 	int retval;
