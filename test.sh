@@ -9,7 +9,7 @@ cp /etc/fstab /my/fstab
 stat -c'%n      size: %s blocks:%b' /etc/fstab
 stat -c'%n      size: %s blocks:%b' /my/fstab
 
-mkdir /tmp/testdir 
+mkdir /tmp/testdir 2>/dev/null
 mkdir /my/testdir
 stat -c'%n      size: %s blocks:%b' /tmp/testdir
 stat -c'%n      size: %s blocks:%b' /my/testdir
@@ -26,5 +26,11 @@ rmmod nullfs
 insmod nullfs.ko
 mount -t nullfs none /my/ -o write=fstab
 cp /etc/fstab /my/fstab
-
 dmesg| tail -n 5
+
+echo TEST > /sys/fs/nullfs/exclude
+cp /etc/passwd /my/TEST
+wc -l /my/TEST
+cp /etc/passwd /my/BAZ
+wc -l /my/BAZ
+
