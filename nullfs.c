@@ -27,6 +27,9 @@
 #include <linux/slab.h>
 #include <linux/statfs.h>
 
+#include <linux/kobject.h>
+#include <linux/sysfs.h>
+
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michael Ablassmeier");
 
@@ -332,7 +335,33 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
 
 /*
  * Stuff to pass in when registering the filesystem.
+ * sysfs etc
  */
+static int exclude;
+static ssize_t exclude_show(struct kobject *kobj, struct kobj_attribute *attr,
+			char *buf)
+{
+	return sprintf(buf, "%d\n", exclude);
+}
+
+static ssize_t exclude_store(struct kobject *kobj, struct kobj_attribute *attr,
+			 const char *buf, size_t count)
+{
+	sscanf(buf, "%du", &exclude);
+	return count;
+}
+
+static struct kobj_attribute exclude_attribute =
+	__ATTR(exclude, 0644, exclude_show, exclude_store);
+
+static struct attribute *attrs[] = {
+	&exclude_attribute.attr,
+	NULL,	/* need to NULL terminate the list of attributes */
+};
+static struct attribute_group attr_group = {
+	.attrs = attrs,
+};
+static struct kobject *exclude_kobj;
 static void nullfs_kill_sb(struct super_block *sb)
 {
         kfree(sb->s_fs_info);
@@ -357,11 +386,23 @@ static struct file_system_type nullfs_type = {
  */
 static int __init nullfs_init(void)
 {
-    return register_filesystem(&nullfs_type);
+	int retval;
+	exclude_kobj = kobject_create_and_add("nullfs", fs_kobj);
+	if (!exclude_kobj)
+		return -ENOMEM;
+
+	/* Create the files associated with this kobject */
+	retval = sysfs_create_group(exclude_kobj, &attr_group);
+	if (retval)
+		kobject_put(exclude_kobj);
+
+    register_filesystem(&nullfs_type);
+    return 0;
 }
 
 static void __exit nullfs_exit(void)
 {
+    kobject_put(exclude_kobj);
     unregister_filesystem(&nullfs_type);
 }
 
