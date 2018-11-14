@@ -123,6 +123,7 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
     int token;
     char *p;
     opts->write = NULL;
+    opts->mode = NULLFS_DEFAULT_MODE;
     while ((p = strsep(&data, ",")) != NULL) {
         if (!*p)
             continue;
@@ -137,7 +138,7 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
     }
     if(opts->write != NULL)
 	    printk(KERN_INFO "nullfs: will keep data for files matching: [%s]",
-			    opts->write);
+		    opts->write);
     return 0;
 }
 
