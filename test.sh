@@ -20,4 +20,11 @@ for FILE in `echo /my/file /tmp/file`; do
 	stat -c'%n	size: %s blocks:%b' $FILE
 done
 
+grep nullfs /proc/mounts
+umount /my/
+rmmod nullfs
+insmod nullfs.ko
+mount -t nullfs none /my/ -o write=fstab
+cp /etc/fstab /my/fstab
+
 dmesg| tail -n 5

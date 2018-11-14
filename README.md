@@ -51,6 +51,26 @@ File size is preserved to work around applications that do size checks:
 641517568
 ```
 
+### keep data for certain files
+
+There is the possiblity to exclude certain files from beeing sent into the void.
+For example if the file matching "fstab" should be kept in memory, one can mount
+nullfs with the "write=" option. 
+
+```
+# mount -t nullfs none /sinkhole/ -o write=fstab
+# cp /etc/fstab /sinkhole/
+# wc -l /sinkhole/fstab 
+14 /sinkhole/fstab
+# cp /etc/passwd /sinkhole/
+# wc -l /sinkhole/passwd 
+0 /sinkhole/passwd
+```
+
+Keep in mind that file data is kept in memory and no boundary checks are done,
+so this might fill up your RAM in case you exclude big files from beeing
+nulled.
+
 ### todos/ideas
 
 * replace simple_statfs call with real one, show free space of a directory that

@@ -18,6 +18,9 @@
 #include <linux/version.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
+#include <linux/string.h>
+#include <linux/seq_file.h>
+#include <linux/parser.h>
 #include <linux/module.h>
 #include <linux/pagemap.h> 
 #include <linux/fs.h> 
@@ -71,6 +74,14 @@ const struct file_operations nullfs_file_operations = {
     .fsync  = noop_fsync
 };
 
+const struct file_operations nullfs_real_file_operations = {
+    .read_iter  = generic_file_read_iter,
+    .write_iter = generic_file_write_iter,
+    .mmap       = generic_file_mmap,
+    .fsync      = noop_fsync,
+    .llseek     = generic_file_llseek,
+};
+
 const struct inode_operations nullfs_file_inode_operations = {
     .setattr    = simple_setattr,
     .getattr    = nullfs_getattr,
@@ -86,6 +97,7 @@ static const struct inode_operations nullfs_dir_inode_operations;
 static const struct super_operations nullfs_ops;
 
 struct nullfs_mount_opts {
+    char *write;
     umode_t mode;
 };
 
@@ -93,10 +105,51 @@ struct nullfs_fs_info {
     struct nullfs_mount_opts mount_opts;
 };
 
+enum {
+    Opt_write,
+    Opt_mode,
+    Opt_err
+};
+
+static const match_table_t tokens = {
+    {Opt_write, "write=%s"},
+    {Opt_err, NULL}
+};
+
+static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
+{
+    substring_t args[MAX_OPT_ARGS];
+    char *option;
+    int token;
+    char *p;
+    opts->write = "none";
+    while ((p = strsep(&data, ",")) != NULL) {
+        if (!*p)
+            continue;
+
+        token = match_token(p, tokens, args);
+        switch (token) {
+        case Opt_write:
+	    option = match_strdup(&args[0]);
+	    opts->write = option;
+            break;
+        }
+    }
+    return 0;
+}
+
+static int nullfs_show_options(struct seq_file *m, struct dentry *root)
+{
+    struct nullfs_fs_info *fsi = root->d_sb->s_fs_info;
+    seq_printf(m, ",write=%s", fsi->mount_opts.write);
+    return 0;
+}
+
 struct inode *nullfs_get_inode(struct super_block *sb,
-                const struct inode *dir, umode_t mode, dev_t dev)
+                const struct inode *dir, umode_t mode, dev_t dev, struct dentry *dentry)
 {
     struct inode * inode = new_inode(sb);
+    struct nullfs_fs_info *fsi = sb->s_fs_info;
 
     if (inode) {
         inode->i_ino = get_next_ino();
@@ -115,7 +168,11 @@ struct inode *nullfs_get_inode(struct super_block *sb,
             break;
         case S_IFREG:
             inode->i_op = &nullfs_file_inode_operations;
-            inode->i_fop = &nullfs_file_operations;
+            if(strstr(dentry->d_iname, fsi->mount_opts.write)) {
+                inode->i_fop = &nullfs_real_file_operations;
+            } else {
+                inode->i_fop = &nullfs_file_operations;
+            }
             break;
         case S_IFDIR:
             inode->i_op = &nullfs_dir_inode_operations;
@@ -134,8 +191,10 @@ struct inode *nullfs_get_inode(struct super_block *sb,
 static int
 nullfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
 {
-    struct inode * inode = nullfs_get_inode(dir->i_sb, dir, mode, dev);
+    struct inode * inode;
     int error = -ENOSPC;
+
+    inode = nullfs_get_inode(dir->i_sb, dir, mode, dev, dentry);
 
     if (inode) {
         /**
@@ -171,7 +230,7 @@ nullfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
     struct inode *inode;
     int error = -ENOSPC;
 
-    inode = nullfs_get_inode(dir->i_sb, dir, S_IFLNK|S_IRWXUGO, 0);
+    inode = nullfs_get_inode(dir->i_sb, dir, S_IFLNK|S_IRWXUGO, 0, dentry);
     if (inode) {
         int l = strlen(symname)+1;
         error = page_symlink(inode, symname, l);
@@ -228,19 +287,25 @@ int nullfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 }
 
 static const struct super_operations nullfs_ops = {
-    .statfs     = nullfs_statfs,
-    .drop_inode = generic_delete_inode
+    .statfs       = nullfs_statfs,
+    .drop_inode   = generic_delete_inode,
+    .show_options = nullfs_show_options
 };
 
 int nullfs_fill_super(struct super_block *sb, void *data, int silent)
 {
     struct nullfs_fs_info *fsi;
     struct inode *inode;
+    int err;
 
     fsi = kzalloc(sizeof(struct nullfs_fs_info), GFP_KERNEL);
     sb->s_fs_info = fsi;
     if (!fsi)
         return -ENOMEM;
+
+    err = nullfs_parse_options(data, &fsi->mount_opts);
+    if(err)
+	return err;
 
     sb->s_maxbytes       = MAX_LFS_FILESIZE;
     sb->s_blocksize      = PAGE_SIZE;
@@ -249,7 +314,7 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
     sb->s_op             = &nullfs_ops;
     sb->s_time_gran      = 1;
 
-    inode = nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0);
+    inode = nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0, sb->s_root);
     sb->s_root = d_make_root(inode);
     if (!sb->s_root)
         return -ENOMEM;
@@ -261,7 +326,6 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
 /*
  * Stuff to pass in when registering the filesystem.
  */
-
 static void nullfs_kill_sb(struct super_block *sb)
 {
         kfree(sb->s_fs_info);
