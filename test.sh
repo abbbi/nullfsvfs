@@ -25,10 +25,6 @@ umount /my/
 rmmod nullfs
 insmod nullfs.ko
 mount -t nullfs none /my/ -o write=fstab
-grep nullfs /proc/mounts
-for file in `echo fstab passwd`; do
-	cp  /etc/$file /my/
-	wc -l /my/$file;
-done
+cp /etc/fstab /my/fstab
 
 dmesg| tail -n 5
