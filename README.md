@@ -76,8 +76,3 @@ nulled.
 * replace simple_statfs call with real one, show free space of a directory that
   can be passed during kernel module load
 * return the size of the files with contents like /dev/zero
-
-* actually write data into memory in case file names match a given name or wildcard
-  which could either be passed during module load, or by setting options via sysfs
-  (see write-on-wildcard branch). Maybe you have to extract an archive with lots
-  of files but you only want to keep certain ones.
