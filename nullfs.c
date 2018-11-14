@@ -3,11 +3,7 @@
  *
  * Copyright 2018 Michael Ablassmeier <abi@grinser.de>
  * 
- * Originated and based on work by:
- *
- * Copyright 2002, 2003 Jonathan Corbet <corbet@lwn.net>
- * 
- * And ramfs from the linux kernel
+ * Originated and based on ramfs from the linux kernel
  *
  * This file may be redistributed under the terms of the GNU GPL.
  *
@@ -30,7 +26,7 @@
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michael Ablassmeier");
 
-#define NULLFS_MAGIC 0x19980123
+#define NULLFS_MAGIC 0x20181113
 #define NULLFS_DEFAULT_MODE  0755
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
