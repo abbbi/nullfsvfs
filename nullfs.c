@@ -43,9 +43,7 @@ static ssize_t exclude_show(struct kobject *kobj, struct kobj_attribute *attr,
 static ssize_t exclude_store(struct kobject *kobj, struct kobj_attribute *attr,
 			 const char *buf, size_t count)
 {
-    char dest[100];
     char *p;
-    memset(dest, '\0', sizeof(dest));
     p = strchr(buf,'\n');
     if (p)
         *p = '\0';
