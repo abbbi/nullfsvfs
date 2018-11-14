@@ -392,11 +392,18 @@ static struct file_system_type nullfs_type = {
 static int __init nullfs_init(void)
 {
 	int retval;
+	/* *
+     * Create the files associated with this sysfs object 
+     * TODO: create per mount object as fs is mounted, like:
+     * nullfs/mountpoint1/exclude
+     * nullfs/mountpoint2/exclude
+     * so each mount gets its own exclude list in case
+     * fs is mounted on multiple targets
+     * */
 	exclude_kobj = kobject_create_and_add("nullfs", fs_kobj);
 	if (!exclude_kobj)
 		return -ENOMEM;
 
-	/* Create the files associated with this kobject */
 	retval = sysfs_create_group(exclude_kobj, &attr_group);
 	if (retval)
 		kobject_put(exclude_kobj);
