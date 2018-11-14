@@ -3,12 +3,6 @@
  *
  * Copyright 2018 Michael Ablassmeier <abi@grinser.de>
  * 
- * Originated and based on work by:
- *
- * Copyright 2002, 2003 Jonathan Corbet <corbet@lwn.net>
- * 
- * And ramfs from the linux kernel
- *
  * This file may be redistributed under the terms of the GNU GPL.
  *
  * Create a file system that stores its structure in memory but
