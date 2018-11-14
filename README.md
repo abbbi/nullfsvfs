@@ -76,3 +76,4 @@ nulled.
 * replace simple_statfs call with real one, show free space of a directory that
   can be passed during kernel module load
 * return the size of the files with contents like /dev/zero
+* support multiple parameters for write= option
