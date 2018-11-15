@@ -29,6 +29,7 @@ MODULE_AUTHOR("Michael Ablassmeier");
 
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE  0755
+#define NULLFS_SYSFS_MODE  0644
 
 /*
  * sysfs handlers
@@ -54,15 +55,17 @@ static ssize_t exclude_store(struct kobject *kobj, struct kobj_attribute *attr,
 }
 
 static struct kobj_attribute exclude_attribute =
-	__ATTR(exclude, 0644, exclude_show, exclude_store);
+	__ATTR(exclude, NULLFS_SYSFS_MODE, exclude_show, exclude_store);
 
 static struct attribute *attrs[] = {
 	&exclude_attribute.attr,
 	NULL,	/* need to NULL terminate the list of attributes */
 };
+
 static struct attribute_group attr_group = {
 	.attrs = attrs,
 };
+
 static struct kobject *exclude_kobj;
 
 
@@ -86,7 +89,6 @@ static int nullfs_getattr(const struct path *path, struct kstat *stat,
 	stat->blocks = npages << (PAGE_SHIFT - 9);
 	return 0;
 }
-
 
 static ssize_t write_null(struct file *filp, const char *buf,
                 size_t count, loff_t *offset) {
@@ -390,14 +392,6 @@ static struct file_system_type nullfs_type = {
 static int __init nullfs_init(void)
 {
 	int retval;
-	/* *
-     * Create the files associated with this sysfs object 
-     * TODO: create per mount object as fs is mounted, like:
-     * nullfs/mountpoint1/exclude
-     * nullfs/mountpoint2/exclude
-     * so each mount gets its own exclude list in case
-     * fs is mounted on multiple targets
-     * */
 	exclude_kobj = kobject_create_and_add("nullfs", fs_kobj);
 	if (!exclude_kobj)
 		return -ENOMEM;
