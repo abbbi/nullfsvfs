@@ -6,3 +6,6 @@ before_install:
 
 script: 
     - dpkg-buildpackage -rfakeroot --no-sign
+    - sudo dpkg -i ../nullfsvfs_*_amd64.deb
+    - sudo modprobe nullfs
+    - sudo mount -t nullfs none /mnt
