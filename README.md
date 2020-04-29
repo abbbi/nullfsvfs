@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/abbbi/nullfsvfs.svg?branch=master)](https://travis-ci.org/abbbi/nullfsvfs)
+
 # nullfsvfs
 a virtual file system that behaves like /dev/null
 
