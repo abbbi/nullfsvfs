@@ -113,8 +113,14 @@ const struct file_operations nullfs_file_operations = {
 };
 
 const struct file_operations nullfs_real_file_operations = {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0)
     .read_iter  = generic_file_read_iter,
     .write_iter = generic_file_write_iter,
+    .mmap       = generic_file_mmap,
+#else
+    .aio_read   = generic_file_aio_read,
+    .aio_write  = generic_file_aio_write,
+#endif
     .mmap       = generic_file_mmap,
     .fsync      = noop_fsync,
     .llseek     = generic_file_llseek,
@@ -227,7 +233,9 @@ struct inode *nullfs_get_inode(struct super_block *sb,
             break;
         case S_IFLNK:
             inode->i_op = &page_symlink_inode_operations;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0)
             inode_nohighmem(inode);
+#endif
             break;
         }
     }
