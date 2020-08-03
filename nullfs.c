@@ -176,6 +176,7 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
         case Opt_write:
 	    option = match_strdup(&args[0]);
 	    opts->write = option;
+    	    strncpy(exclude, option, sizeof(exclude));
             break;
         }
     }
