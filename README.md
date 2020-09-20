@@ -80,6 +80,11 @@ Keep in mind that file data is kept in memory and no boundary checks are done,
 so this might fill up your RAM in case you exclude big files from beeing
 nulled.
 
+### use cases
+
+See: [Use Cases ](https://github.com/abbbi/nullfsvfs/labels/Usecase)
+
+
 ### todos/ideas
 
 * replace simple_statfs call with real one, show free space of a directory that
