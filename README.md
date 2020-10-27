@@ -84,6 +84,11 @@ nulled.
 
 See: [Use Cases ](https://github.com/abbbi/nullfsvfs/labels/Usecase)
 
+### supported mount options
+
+```
+ -o mode=       set permissions on mounted directory ( mount .. -o mode=777 )
+```
 
 ### todos/ideas
 
