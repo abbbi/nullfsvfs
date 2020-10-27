@@ -156,6 +156,7 @@ enum {
 
 static const match_table_t tokens = {
     {Opt_write, "write=%s"},
+    {Opt_mode, "mode=%s"},
     {Opt_err, NULL}
 };
 
@@ -164,19 +165,27 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
     substring_t args[MAX_OPT_ARGS];
     char *option;
     int token;
+    int opt;
     char *p;
     opts->write = NULL;
     opts->mode = NULLFS_DEFAULT_MODE;
+    // maybe use fs_parse here? Not sure which kernel versions
+    // support it
     while ((p = strsep(&data, ",")) != NULL) {
         if (!*p)
             continue;
 
         token = match_token(p, tokens, args);
         switch (token) {
-        case Opt_write:
-	    option = match_strdup(&args[0]);
-	    opts->write = option;
-            strncpy(exclude, option, sizeof(exclude));
+            case Opt_write:
+	            option = match_strdup(&args[0]);
+	            opts->write = option;
+                strncpy(exclude, option, sizeof(exclude));
+            break;
+            case Opt_mode:
+                if (match_octal(&args[0], &opt))
+                    return -EINVAL;
+                opts->mode = opt & S_IALLUGO;
             break;
         }
     }
