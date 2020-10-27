@@ -93,6 +93,8 @@ nulled.
 See: [Use Cases ](https://github.com/abbbi/nullfsvfs/labels/Usecase)
 
 ### supported
+
+The following mount options are supported:
 ```
  -o mode=      set permissions on mount directory ( mount .. -o mode=777 )
  -o uid=       set uid on mount directory ( mount .. -o uid=1000 )
