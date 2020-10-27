@@ -4,9 +4,9 @@
 
  - [About](#nullfsvfs)
  - [Usage](#usage)
- - [Use Cases](#use cases)
- - [Keeping data](#keep data for certain files)
- - [Mount options](#supported mount options)
+ - [Use Cases](#usecases)
+ - [Keeping data](#keep)
+ - [Mount options](#supported)
 
 # nullfsvfs
 a virtual file system that behaves like /dev/null
@@ -61,7 +61,7 @@ File size is preserved to work around applications that do size checks:
 641517568
 ```
 
-### keep data for certain files
+### keep
 
 There is the possiblity to exclude certain files from beeing sent into the void.
 For example if the file matching "fstab" should be kept in memory, one can mount
@@ -88,12 +88,11 @@ Keep in mind that file data is kept in memory and no boundary checks are done,
 so this might fill up your RAM in case you exclude big files from beeing
 nulled.
 
-### use cases
+### usecases
 
 See: [Use Cases ](https://github.com/abbbi/nullfsvfs/labels/Usecase)
 
-### supported mount options
-
+### supported
 ```
  -o mode=      set permissions on mount directory ( mount .. -o mode=777 )
  -o uid=       set uid on mount directory ( mount .. -o uid=1000 )
