@@ -142,6 +142,8 @@ static const struct super_operations nullfs_ops;
 struct nullfs_mount_opts {
     char *write;
     umode_t mode;
+    kuid_t uid;
+    kgid_t gid;
 };
 
 struct nullfs_fs_info {
@@ -151,12 +153,16 @@ struct nullfs_fs_info {
 enum {
     Opt_write,
     Opt_mode,
+    Opt_uid,
+    Opt_gid,
     Opt_err
 };
 
 static const match_table_t tokens = {
     {Opt_write, "write=%s"},
     {Opt_mode, "mode=%s"},
+    {Opt_uid, "uid=%s"},
+    {Opt_gid, "gid=%s"},
     {Opt_err, NULL}
 };
 
@@ -167,8 +173,12 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
     int token;
     int opt;
     char *p;
+    kuid_t uid;
+    kgid_t gid;
     opts->write = NULL;
     opts->mode = NULLFS_DEFAULT_MODE;
+    opts->uid = GLOBAL_ROOT_UID;
+    opts->gid = GLOBAL_ROOT_GID;
     // maybe use fs_parse here? Not sure which kernel versions
     // support it
     while ((p = strsep(&data, ",")) != NULL) {
@@ -181,6 +191,22 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
 	            option = match_strdup(&args[0]);
 	            opts->write = option;
                 strncpy(exclude, option, sizeof(exclude));
+            break;
+            case Opt_uid:
+                if (match_int(&args[0], &opt))
+                    return -EINVAL;
+                uid = make_kuid(current_user_ns(), opt);
+                if (!uid_valid(uid))
+                    return -EINVAL;
+                opts->uid = uid;
+            break;
+            case Opt_gid:
+                if (match_int(&args[0], &opt))
+                    return -EINVAL;
+                gid = make_kgid(current_user_ns(), opt);
+                if (!gid_valid(gid))
+                    return -EINVAL;
+                opts->gid = gid;
             break;
             case Opt_mode:
                 if (match_octal(&args[0], &opt))
@@ -198,8 +224,18 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
 static int nullfs_show_options(struct seq_file *m, struct dentry *root)
 {
     struct nullfs_fs_info *fsi = root->d_sb->s_fs_info;
+
     if(fsi->mount_opts.write != NULL)
-	seq_printf(m, ",write=%s", fsi->mount_opts.write);
+	    seq_printf(m, ",write=%s", fsi->mount_opts.write);
+    if (!uid_eq(fsi->mount_opts.uid, GLOBAL_ROOT_UID))
+        seq_printf(m, ",uid=%u",
+               from_kuid_munged(&init_user_ns, fsi->mount_opts.uid));
+    if (!gid_eq(fsi->mount_opts.gid, GLOBAL_ROOT_GID))
+        seq_printf(m, ",gid=%u",
+               from_kgid_munged(&init_user_ns, fsi->mount_opts.gid));
+    if (fsi->mount_opts.mode != NULLFS_DEFAULT_MODE)
+        seq_printf(m, ",mode=%o", fsi->mount_opts.mode);
+
     return 0;
 }
 
@@ -213,6 +249,8 @@ struct inode *nullfs_get_inode(struct super_block *sb,
         inode->i_ino = get_next_ino();
         inode_init_owner(inode, dir, mode);
         inode->i_mapping->a_ops = &nullfs_aops; 
+        inode->i_uid = fsi->mount_opts.uid;
+        inode->i_gid = fsi->mount_opts.gid;
         mapping_set_gfp_mask(inode->i_mapping, GFP_HIGHUSER);
         mapping_set_unevictable(inode->i_mapping);
 #ifndef CURRENT_TIME

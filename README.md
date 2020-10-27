@@ -87,7 +87,10 @@ See: [Use Cases ](https://github.com/abbbi/nullfsvfs/labels/Usecase)
 ### supported mount options
 
 ```
- -o mode=       set permissions on mounted directory ( mount .. -o mode=777 )
+ -o mode=      set permissions on mount directory ( mount .. -o mode=777 )
+ -o uid=       set uid on mount directory ( mount .. -o uid=1000 )
+ -o gid=       set gid on mount directory ( mount .. -o gid=1000 )
+ 
 ```
 
 ### todos/ideas
