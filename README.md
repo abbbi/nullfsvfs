@@ -1,5 +1,13 @@
 [![Build Status](https://travis-ci.org/abbbi/nullfsvfs.svg?branch=master)](https://travis-ci.org/abbbi/nullfsvfs)
 
+## Index
+
+ - [About](#nullfsvfs)
+ - [Usage](#usage)
+ - [Use Cases](#use cases)
+ - [Keeping data](#keep data for certain files)
+ - [Mount options](#supported mount options)
+
 # nullfsvfs
 a virtual file system that behaves like /dev/null
 
