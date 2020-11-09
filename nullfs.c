@@ -249,8 +249,10 @@ struct inode *nullfs_get_inode(struct super_block *sb,
         inode->i_ino = get_next_ino();
         inode_init_owner(inode, dir, mode);
         inode->i_mapping->a_ops = &nullfs_aops; 
-        inode->i_uid = fsi->mount_opts.uid;
-        inode->i_gid = fsi->mount_opts.gid;
+        if (!uid_eq(fsi->mount_opts.uid, GLOBAL_ROOT_UID))
+            inode->i_uid = fsi->mount_opts.uid;
+        if (!gid_eq(fsi->mount_opts.gid, GLOBAL_ROOT_GID))
+            inode->i_gid = fsi->mount_opts.gid;
         mapping_set_gfp_mask(inode->i_mapping, GFP_HIGHUSER);
         mapping_set_unevictable(inode->i_mapping);
 #ifndef CURRENT_TIME
