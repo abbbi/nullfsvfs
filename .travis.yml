@@ -2,7 +2,7 @@ dist: bionic
 language: python
 
 before_install:
-    - sudo apt-get install -y dkms fakeroot dpkg-dev build-essential debhelper linux-headers-amd64
+    - sudo apt-get install -y dkms fakeroot dpkg-dev build-essential debhelper linux-headers-$(uname -r)
 
 script: 
     - dpkg-buildpackage -rfakeroot --no-sign
