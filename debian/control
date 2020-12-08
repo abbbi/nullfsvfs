@@ -1,15 +1,15 @@
 Source: nullfsvfs
-Section: unknown
+Section: misc
 Priority: optional
-Maintainer: root <root@debian>
+Maintainer: Michael Ablassmeier <abi@grinser.de>
 Build-Depends: debhelper (>= 9), dkms
 Standards-Version: 3.9.8
-Homepage: <insert the upstream URL, if relevant>
-#Vcs-Git: https://anonscm.debian.org/collab-maint/nullfsvfs-0.1.git
-#Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/nullfsvfs-0.1.git
+Homepage: https://github.com/abbbi/nullfsvfs
+Vcs-Git: https://github.com/abbbi/nullfsvfs
 
 Package: nullfsvfs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Description: virtual file system that behaves like /dev/null
+ Nullfsvfs is a virtual file system that can handle regular
+ file operations like mkdir/rmdir/ln but wont store any data.
