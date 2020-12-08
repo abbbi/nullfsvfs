@@ -49,8 +49,8 @@ static ssize_t exclude_store(struct kobject *kobj, struct kobj_attribute *attr,
     if (p)
         *p = '\0';
     strncpy(exclude, buf, sizeof(exclude));
-	printk(KERN_INFO "nullfs: will keep data for files matching: [%s]",
-            exclude);
+    printk(KERN_INFO "nullfs: will keep data for files matching: [%s]",
+        exclude);
 	return count;
 }
 
@@ -188,8 +188,8 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
         token = match_token(p, tokens, args);
         switch (token) {
             case Opt_write:
-	            option = match_strdup(&args[0]);
-	            opts->write = option;
+                option = match_strdup(&args[0]);
+                opts->write = option;
                 strncpy(exclude, option, sizeof(exclude));
             break;
             case Opt_uid:
@@ -216,8 +216,8 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
         }
     }
     if(opts->write != NULL)
-	    printk(KERN_INFO "nullfs: will keep data for files matching: [%s]",
-		    opts->write);
+        printk(KERN_INFO "nullfs: will keep data for files matching: [%s]",
+            opts->write);
     return 0;
 }
 
@@ -266,13 +266,13 @@ struct inode *nullfs_get_inode(struct super_block *sb,
             break;
         case S_IFREG:
             inode->i_op = &nullfs_file_inode_operations;
-	        if(fsi->mount_opts.write != NULL) {
-		        if(strstr(dentry->d_iname, fsi->mount_opts.write) ||
-                        strstr(dentry->d_iname, exclude)) {
-			        inode->i_fop = &nullfs_real_file_operations;
-			        break;
-		        }
-	        }
+            if(fsi->mount_opts.write != NULL) {
+                if(strstr(dentry->d_iname, fsi->mount_opts.write) ||
+                    strstr(dentry->d_iname, exclude)) {
+                    inode->i_fop = &nullfs_real_file_operations;
+                    break;
+                }
+            }
             inode->i_fop = &nullfs_file_operations;
             break;
         case S_IFDIR:
@@ -429,8 +429,8 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
  **/
 static void nullfs_kill_sb(struct super_block *sb)
 {
-        kfree(sb->s_fs_info);
-        kill_litter_super(sb);
+    kfree(sb->s_fs_info);
+    kill_litter_super(sb);
 }
 
 static struct dentry * nullfs_get_super(struct file_system_type *fst,
@@ -448,14 +448,14 @@ static struct file_system_type nullfs_type = {
 
 static int __init nullfs_init(void)
 {
-	int retval;
-	exclude_kobj = kobject_create_and_add("nullfs", fs_kobj);
-	if (!exclude_kobj)
-		return -ENOMEM;
+    int retval;
+    exclude_kobj = kobject_create_and_add("nullfs", fs_kobj);
+    if (!exclude_kobj)
+        return -ENOMEM;
 
-	retval = sysfs_create_group(exclude_kobj, &attr_group);
-	if (retval)
-		kobject_put(exclude_kobj);
+    retval = sysfs_create_group(exclude_kobj, &attr_group);
+    if (retval)
+        kobject_put(exclude_kobj);
 
     register_filesystem(&nullfs_type);
     return 0;
