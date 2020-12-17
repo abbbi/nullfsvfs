@@ -11,18 +11,13 @@
 # nullfsvfs
 a virtual file system that behaves like /dev/null
 
-Mostly based on the ramfs example from the linux kernel and the lwnfs file
-system.
-
-A virtual filesystem that behaves like /dev/null, but on the VFS layer of the
-kernel. Existing alternatives are mostly based on FUSE which do not perform
-good because of user/kernel space mapping operations.
-
 It can handle regular file operations like mkdir/rmdir/ln but writing to files
 does not store any data.
 
-In my tests i could get up to 3.85 Gib/s so it should be fine for performance
-tests that need directory operations.
+Writing to a file is basically an NOOP, so  it can be used for performance testing 
+with  applications that require directory structures. As it is implemented as
+kernel module, instead of using FUSE, there is absolutely no overhead for copying
+application data from user to kernel space while writing to the filesystem.
 
 
 ![alt text](https://github.com/abbbi/nullfsvfs/raw/master/nullfs.jpg)
@@ -91,6 +86,10 @@ nulled.
 ### usecases
 
 See: [Use Cases ](https://github.com/abbbi/nullfsvfs/labels/Usecase)
+
+The module has been used for performance testing with redis, see:
+
+ https://www.usenix.org/system/files/atc20-george.pdf
 
 ### supported
 
