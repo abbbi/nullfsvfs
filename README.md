@@ -12,13 +12,15 @@
 a virtual file system that behaves like /dev/null
 
 It can handle regular file operations like mkdir/rmdir/ln but writing to files
-does not store any data.
+does not store any data. The file size is however saved, so reading from the
+written files does not really provide any data, but makes userspace programs
+think they have.
 
-Writing to a file is basically an NOOP, so  it can be used for performance testing 
-with  applications that require directory structures. As it is implemented as
-kernel module, instead of using FUSE, there is absolutely no overhead for copying
-application data from user to kernel space while writing to the filesystem.
-
+Writing and reading to a file is basically an NOOP, so  it can be used for
+performance testing with  applications that require directory structures. As it
+is implemented as kernel module, instead of using FUSE, there is absolutely no
+overhead for copying application data from user to kernel space while writing
+to the filesystem.
 
 ![alt text](https://github.com/abbbi/nullfsvfs/raw/master/nullfs.jpg)
 
@@ -49,12 +51,26 @@ make[1]: Leaving directory '/usr/src/linux-headers-4.18.5'
 File size is preserved to work around applications that do size checks:
 
 ```
-# stat -c%s proxmox.iso 
-641517568
-# cp proxmox.iso /sinkhole/
-# stat -c%s /sinkhole/proxmox.iso 
-641517568
+# dd if=/dev/zero of=/nullfs/DATA bs=1M count=20
+# 20+0 records in
+# 20+0 records out
+# 20971520 bytes (21 MB, 20 MiB) copied, 0.00392452 s, 5.3 GB/s
+# stat -c%s /nullfs/DATA
+# 20971520
 ```
+
+Reading from the files does not copy anything to userspace and is an NOOP;
+makes it behave like reading from /dev/null:
+
+```
+# dd if=/nullfs/DATA of=/tmp/REALFILE
+# 40960+0 records in
+# 40960+0 records out
+# 20971520 bytes (21 MB, 20 MiB) copied, 0.0455288 s, 461 MB/s
+# hexdump -C /tmp/REALFILE
+# 00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+```
+
 
 ### keep
 

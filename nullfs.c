@@ -68,7 +68,6 @@ static struct attribute_group attr_group = {
 
 static struct kobject *exclude_kobj;
 
-
 /**
  * regular filesystem handlers, inode handling etc..
  **/
@@ -102,7 +101,22 @@ static ssize_t write_null(struct file *filp, const char *buf,
 
 static ssize_t read_null(struct file *filp, char *buf,
                 size_t count, loff_t *offset) {
-    return 0;
+
+    /**
+     * Pretend we have returne some data
+     * during file read
+     **/
+    int nbytes;
+    struct inode * inode = filp->f_inode;
+
+    if (*offset >= inode->i_size) {
+        return 0;
+    }
+
+    nbytes = min((size_t) inode->i_size, count);
+    *offset += nbytes;
+
+    return nbytes;
 }
 
 const struct file_operations nullfs_file_operations = {
