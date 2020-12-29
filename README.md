@@ -13,14 +13,13 @@ a virtual file system that behaves like /dev/null
 
 It can handle regular file operations like mkdir/rmdir/ln but writing to files
 does not store any data. The file size is however saved, so reading from the
-written files does not really provide any data, but makes userspace programs
-think they have.
+files behaves like reading from /dev/zero with a fixed size.
 
-Writing and reading to a file is basically an NOOP, so  it can be used for
-performance testing with  applications that require directory structures. As it
-is implemented as kernel module, instead of using FUSE, there is absolutely no
-overhead for copying application data from user to kernel space while writing
-to the filesystem.
+Writing and reading is basically an NOOP, so it can be used for performance
+testing with applications that require directory structures. As it is
+implemented as kernel module, instead of using FUSE, there is absolutely no
+overhead for copying application data from user to kernel space while
+performing write or read operations.
 
 ![alt text](https://github.com/abbbi/nullfsvfs/raw/master/nullfs.jpg)
 
@@ -60,7 +59,7 @@ File size is preserved to work around applications that do size checks:
 ```
 
 Reading from the files does not copy anything to userspace and is an NOOP;
-makes it behave like reading from /dev/null:
+makes it behave like reading from /dev/zero:
 
 ```
 # dd if=/nullfs/DATA of=/tmp/REALFILE
