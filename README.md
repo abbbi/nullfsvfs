@@ -16,10 +16,10 @@ does not store any data. The file size is however saved, so reading from the
 files behaves like reading from /dev/zero with a fixed size.
 
 Writing and reading is basically an NOOP, so it can be used for performance
-testing with applications that require directory structures. As it is
-implemented as kernel module, instead of using FUSE, there is absolutely no
-overhead for copying application data from user to kernel space while
-performing write or read operations.
+testing with applications that require directory structures.  Implemented as
+kernel module, instead of using FUSE, there is absolutely no overhead for
+copying application data from user to kernel space while performing write or
+read operations.
 
 ![alt text](https://github.com/abbbi/nullfsvfs/raw/master/nullfs.jpg)
 
@@ -120,6 +120,5 @@ The following mount options are supported:
 
 * replace simple_statfs call with real one, show free space of a directory that
   can be passed during kernel module load
-* return the size of the files with contents like /dev/zero
 * support multiple parameters for write= option
 * allow regex for write= option via trace.h
