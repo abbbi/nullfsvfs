@@ -2,13 +2,13 @@
 
 ## Index
 
- - [About](#nullfsvfs)
+ - [About](#nullfs)
  - [Usage](#usage)
  - [Use Cases](#usecases)
  - [Keeping data](#keep)
  - [Mount options](#supported)
 
-# nullfsvfs
+# nullfs
 a virtual file system that behaves like /dev/null
 
 It can handle regular file operations like mkdir/rmdir/ln but writing to files
