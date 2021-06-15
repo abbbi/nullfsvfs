@@ -422,6 +422,20 @@ static int nullfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 #endif
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+static int nullfs_tmpfile(struct user_namespace *mnt_userns, struct inode *dir, struct dentry *dentry, umode_t mode)
+#else
+static int nullfs_tmpfile(struct inode *dir, struct dentry *dentry, umode_t mode)
+#endif
+{
+    struct inode *inode;
+    inode = nullfs_get_inode(dir->i_sb, dir, mode, 0, dentry);
+    if (!inode)
+        return -ENOSPC;
+    d_tmpfile(dentry, inode);
+    return 0;
+}
+
 static const struct inode_operations nullfs_dir_inode_operations = {
     .create     = nullfs_create,
     .lookup     = simple_lookup,
@@ -433,6 +447,9 @@ static const struct inode_operations nullfs_dir_inode_operations = {
     .mknod      = nullfs_mknod,
     .rename     = simple_rename,
     .getattr    = nullfs_getattr,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)
+    .tmpfile	= nullfs_tmpfile,
+#endif
 };
 
 int nullfs_statfs(struct dentry *dentry, struct kstatfs *buf)
