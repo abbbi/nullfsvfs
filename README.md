@@ -41,7 +41,7 @@ make[1]: Leaving directory '/usr/src/linux-headers-4.18.5'
 # ls -lah /sinkhole/testdir/myfile
 -rw-r--r-- 1 root root 0 Nov  8 20:17 /sinkhole/testdir/myfile
 # cat /sinkhole/testdir/myfile
-# cat /dev/zero | pv > /sinkhole/testdir/myfile
+# pv < /dev/zero > /sinkhole/testdir/myfile
 11.1GiB 0:00:04 [3.85GiB/s] [     <=>      ] 
 # cat /sinkhole/testdir/myfile
 # 
