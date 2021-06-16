@@ -1,3 +1,9 @@
+nullfsvfs (0.5) unstable; urgency=medium
+
+  * Update Version
+
+ -- Michael Ablassmeier <abi@grinser.de>  Mon, 12 Nov 2018 01:48:40 -0800
+
 nullfsvfs (0.1) unstable; urgency=medium
 
   * Initial Release.

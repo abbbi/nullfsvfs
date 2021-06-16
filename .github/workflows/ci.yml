@@ -19,3 +19,9 @@ jobs:
       run: sudo mk-build-deps --install debian/control
     - name: Build Debian package
       run: dpkg-buildpackage -rfakeroot --no-sign
+    - name: Install Package
+      run: sudo dpkg -i ../nullfsvfs_*_amd64.deb
+    - name: Modprobe kernel module
+      run: sudo modprobe nullfs
+    - name: Mount nullfs
+      run: sudo mount -t nullfs none /mnt
