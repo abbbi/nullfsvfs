@@ -13,8 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install xmllint
-      run: sudo apt-get install build-essential devscripts
+      run: sudo apt-get install build-essential devscripts equivs
     - name: Install Kernel Build Dependencies
       run: mk-build-deps --install debian/control
     - name: Build Debian package
