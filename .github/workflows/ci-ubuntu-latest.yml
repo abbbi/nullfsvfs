@@ -25,3 +25,7 @@ jobs:
       run: sudo modprobe nullfs
     - name: Mount nullfs
       run: sudo mount -t nullfs none /mnt
+    - name: Copy files to nullfs
+      run: sudo cp -r /etc/ /mnt/
+    - name: Umount nullfs
+      run: sudo umount /mnt
