@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: nullfsvfs CI
 
 on:
   push:
@@ -16,6 +16,6 @@ jobs:
     - name: Install build-essential and devscripts
       run: sudo apt-get install build-essential devscripts equivs
     - name: Install Kernel Build Dependencies
-      run: mk-build-deps --install debian/control
+      run: sudo mk-build-deps --install debian/control
     - name: Build Debian package
       run: dpkg-buildpackage -rfakeroot --no-sign
