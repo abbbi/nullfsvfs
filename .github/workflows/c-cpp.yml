@@ -1,0 +1,21 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install xmllint
+      run: sudo apt-get install build-essential devscripts
+    - name: Install Kernel Build Dependencies
+      run: mk-build-deps --install debian/control
+    - name: Build Debian package
+      run: dpkg-buildpackage -rfakeroot --no-sign
