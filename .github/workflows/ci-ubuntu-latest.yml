@@ -1,4 +1,4 @@
-name: nullfsvfs CI
+name: nullfsvfs CI on ubuntu-latest
 
 on:
   push:
