@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/abbbi/nullfsvfs.svg?branch=master)](https://travis-ci.org/abbbi/nullfsvfs)
-
 ## Index
 
  - [About](#nullfs)
