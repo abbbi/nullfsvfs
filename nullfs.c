@@ -172,7 +172,8 @@ const struct inode_operations nullfs_file_inode_operations = {
 static const struct address_space_operations nullfs_aops = {
     .readpage    = simple_readpage,
     .write_begin = simple_write_begin,
-    .write_end   = simple_write_end
+    .write_end   = simple_write_end,
+    .direct_IO = noop_direct_IO
 };
 
 static const struct inode_operations nullfs_dir_inode_operations;
