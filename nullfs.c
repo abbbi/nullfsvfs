@@ -40,7 +40,7 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Michael Ablassmeier");
-MODULE_VERSION("0.6");
+MODULE_VERSION("0.7");
 
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE  0755
@@ -128,7 +128,7 @@ static ssize_t read_null(struct file *filp, char *buf,
                 size_t count, loff_t *offset) {
 
     /**
-     * Pretend we have returne some data
+     * Pretend we have returned some data
      * during file read
      **/
     int nbytes;
@@ -173,7 +173,7 @@ static const struct address_space_operations nullfs_aops = {
     .readpage    = simple_readpage,
     .write_begin = simple_write_begin,
     .write_end   = simple_write_end,
-    .direct_IO = noop_direct_IO
+    .direct_IO   = noop_direct_IO
 };
 
 static const struct inode_operations nullfs_dir_inode_operations;
@@ -554,4 +554,3 @@ static void __exit nullfs_exit(void)
 
 module_init(nullfs_init);
 module_exit(nullfs_exit);
-
