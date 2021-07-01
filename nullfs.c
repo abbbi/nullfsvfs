@@ -38,13 +38,14 @@
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
 
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Michael Ablassmeier");
-MODULE_VERSION("0.7");
-
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE  0755
 #define NULLFS_SYSFS_MODE  0644
+#define NULLFS_VERSION "8.0"
+
+MODULE_AUTHOR("Michael Ablassmeier");
+MODULE_LICENSE("GPL");
+MODULE_VERSION(NULLFS_VERSION);
 
 /*
  * sysfs handlers
@@ -266,7 +267,7 @@ static int nullfs_show_options(struct seq_file *m, struct dentry *root)
     struct nullfs_fs_info *fsi = root->d_sb->s_fs_info;
 
     if(fsi->mount_opts.write != NULL)
-	    seq_printf(m, ",write=%s", fsi->mount_opts.write);
+        seq_printf(m, ",write=%s", fsi->mount_opts.write);
     if (!uid_eq(fsi->mount_opts.uid, GLOBAL_ROOT_UID))
         seq_printf(m, ",uid=%u",
                from_kuid_munged(&init_user_ns, fsi->mount_opts.uid));
@@ -382,7 +383,6 @@ static int nullfs_mkdir(struct inode * dir, struct dentry * dentry, umode_t mode
         inc_nlink(dir);
     return retval;
 }
-
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
 static int nullfs_symlink(struct user_namespace *mnt_userns, struct inode * dir, struct dentry *dentry, const char * symname)
@@ -543,6 +543,7 @@ static int __init nullfs_init(void)
         kobject_put(exclude_kobj);
 
     register_filesystem(&nullfs_type);
+    printk(KERN_INFO "nullfs: version [%s] initialized", NULLFS_VERSION);
     return 0;
 }
 
