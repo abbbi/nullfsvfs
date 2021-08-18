@@ -1,3 +1,5 @@
+![ci](https://github.com/abbbi/nullfsvfs/actions/workflows/ci-ubuntu-latest.yml/badge.svg)
+
 ## Index
 
  - [About](#nullfs)
