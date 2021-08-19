@@ -9,7 +9,7 @@ Vcs-Git: https://github.com/abbbi/nullfsvfs
 
 Package: nullfsvfs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${misc:Depends}
 Description: virtual file system that behaves like /dev/null
  Nullfsvfs is a virtual file system that can handle regular
  file operations like mkdir/rmdir/ln but wont store any data.

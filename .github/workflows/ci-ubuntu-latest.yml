@@ -9,13 +9,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: abbbi/github-actions-tune@v1
     - name: Install build-essential and devscripts
       run: sudo apt-get install build-essential devscripts equivs
     - name: Install Kernel Build Dependencies
       run: sudo mk-build-deps --install debian/control
+    - name: Remove dependency package
+      run: rm -f nullfsvfs-build-deps*.deb
     - name: Build Debian package
-      run: sudo dpkg-buildpackage --no-sign
-    - name: Install Package
+      run: sudo -E dpkg-buildpackage -uc -us -b
+    - name: Install generated Package
       run: sudo dpkg -i ../nullfsvfs_*_amd64.deb
     - name: Modprobe kernel module
       run: sudo modprobe nullfs
