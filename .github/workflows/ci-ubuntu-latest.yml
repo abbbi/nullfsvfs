@@ -9,12 +9,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: abbbi/github-actions-tune@v1
     - name: Install build-essential and devscripts
       run: sudo apt-get install build-essential devscripts equivs
     - name: Install Kernel Build Dependencies
       run: sudo mk-build-deps --install debian/control
     - name: Build Debian package
-      run: dpkg-buildpackage -rfakeroot --no-sign
+      run: sudo dpkg-buildpackage --no-sign
     - name: Install Package
       run: sudo dpkg -i ../nullfsvfs_*_amd64.deb
     - name: Modprobe kernel module
