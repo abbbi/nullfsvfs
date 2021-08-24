@@ -64,7 +64,7 @@ using the %{_target_cpu} family of processors.
 if [ -e "/boot/System.map-%{kversion}.%{_target_cpu}" ]; then
     /usr/sbin/depmod -aeF "/boot/System.map-%{kversion}.%{_target_cpu}" "%{kversion}.%{_target_cpu}" > /dev/null || :
 fi
-modules=( $(find /lib/modules/%{kversion}.%{_target_cpu}/extra/%{kmod_name} | grep '\.ko$') )
+modules=( $(find /lib/modules/%{kversion}/extra/%{kmod_name} | grep '\.ko$') )
 if [ -x "/usr/sbin/weak-modules" ]; then
     printf '%s\n' "${modules[@]}" | /usr/sbin/weak-modules --add-modules
 fi
@@ -88,22 +88,22 @@ fi
 echo "override %{kmod_name} * weak-updates/%{kmod_name}" > kmod-%{kmod_name}.conf
 
 %build
-make -C %{_usrsrc}/kernels/%{kversion}.%{_target_cpu} M=$PWD modules
+make -C %{_usrsrc}/kernels/%{kversion} M=$PWD modules
 
 %install
 export INSTALL_MOD_PATH=%{buildroot}
 export INSTALL_MOD_DIR=extra/%{kmod_name}
-make -C %{_usrsrc}/kernels/%{kversion}.%{_target_cpu} M=$PWD modules_install
+make -C %{_usrsrc}/kernels/%{kversion} M=$PWD modules_install
 
 install -d %{buildroot}%{_sysconfdir}/depmod.d/
 install kmod-%{kmod_name}.conf %{buildroot}%{_sysconfdir}/depmod.d/
 
 # Remove the unrequired files.
-rm -f %{buildroot}/lib/modules/%{kversion}.%{_target_cpu}/modules.*
+rm -f %{buildroot}/lib/modules/%{kversion}/modules.*
 
 %files -n kmod-%{kmod_name}
 %license LICENSE
-/lib/modules/%{kversion}.%{_target_cpu}/extra/*
+/lib/modules/%{kversion}/extra/*
 %config /etc/depmod.d/kmod-%{kmod_name}.conf
 
 %changelog
