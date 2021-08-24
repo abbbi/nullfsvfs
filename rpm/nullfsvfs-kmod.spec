@@ -19,7 +19,7 @@
 %{!?kversion: %global kversion %(uname -r)}
 
 Name:           %{kmod_name}-kmod
-Version:        0.8
+Version:        0.9
 Release:        2%{?dist}
 Summary:        A virtual file system that behaves like /dev/null
 License:        GPLv3+
@@ -107,5 +107,5 @@ rm -f %{buildroot}/lib/modules/%{kversion}.%{_target_cpu}/modules.*
 %config /etc/depmod.d/kmod-%{kmod_name}.conf
 
 %changelog
-* Wed Aug 24 2021 Michael Ablassmeier <abi@grinser.de> - 0.9-1
+* Tue Aug 24 2021 Michael Ablassmeier <abi@grinser.de> - 0.9-1
 - Add example spec file based on version by Simone Caronni  <negativo17@gmail.com>
