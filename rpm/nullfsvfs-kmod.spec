@@ -20,7 +20,7 @@
 
 Name:           %{kmod_name}-kmod
 Version:        0.9
-Release:        2%{?dist}
+Release:        1%{?dist}
 Summary:        A virtual file system that behaves like /dev/null
 License:        GPLv3+
 URL:            https://github.com/abbbi/%{kmod_name}
