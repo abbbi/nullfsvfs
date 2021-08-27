@@ -29,6 +29,6 @@ jobs:
     - name: run setfacl
       run: |
         mkdir /mnt/acl
-        setfacl -m d:u:root:r /mnt/file
+        setfacl -m d:u:root:r /mnt/acl
     - name: Umount nullfs
       run: sudo umount /mnt
