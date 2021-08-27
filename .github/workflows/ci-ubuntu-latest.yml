@@ -28,7 +28,7 @@ jobs:
       run: sudo cp -r /etc/ /mnt/
     - name: run setfacl
       run: |
-        mkdir /mnt/acl
-        setfacl -m d:u:root:r /mnt/acl
+        sudo mkdir /mnt/acl
+        sudo setfacl -m d:u:root:r /mnt/acl
     - name: Umount nullfs
       run: sudo umount /mnt
