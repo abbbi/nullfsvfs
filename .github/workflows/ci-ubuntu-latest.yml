@@ -11,7 +11,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: abbbi/github-actions-tune@v1
     - name: Install build-essential and devscripts
-      run: sudo apt-get install build-essential devscripts equivs
+      run: sudo apt-get install build-essential devscripts equivs acl
     - name: Install Kernel Build Dependencies
       run: sudo mk-build-deps --install debian/control
     - name: Remove dependency package
@@ -26,5 +26,9 @@ jobs:
       run: sudo mount -t nullfs none /mnt
     - name: Copy files to nullfs
       run: sudo cp -r /etc/ /mnt/
+    - name: run setfacl
+      run: |
+        mkdir /mnt/acl
+        setfacl -m d:u:root:r /mnt/file
     - name: Umount nullfs
       run: sudo umount /mnt
