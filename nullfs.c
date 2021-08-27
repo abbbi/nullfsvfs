@@ -35,6 +35,9 @@
 #include <linux/slab.h>
 #include <linux/statfs.h>
 
+#include <linux/posix_acl.h>
+#include <linux/posix_acl_xattr.h>
+
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
 
@@ -46,6 +49,27 @@
 MODULE_AUTHOR("Michael Ablassmeier");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(NULLFS_VERSION);
+
+/*
+ * POSIX ACL
+ * setfacl is possible, but acls are not stored, of course
+ */
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+static int nullfs_set_acl(struct user_namespace *mnt_userns,
+        struct inode *inode, struct posix_acl *acl, int type)
+#else
+static int nullfs_set_acl(struct inode *inode, struct posix_acl *acl, int type)
+#endif
+{
+    return 0;
+}
+static const struct xattr_handler *nullfs_xattr_handlers[] = {
+    &posix_acl_access_xattr_handler,
+    &posix_acl_default_xattr_handler,
+    NULL
+};
+
 
 /*
  * sysfs handlers
@@ -149,7 +173,7 @@ const struct file_operations nullfs_file_operations = {
     .write  = write_null,
     .read   = read_null,
     .llseek = noop_llseek,
-    .fsync  = noop_fsync
+    .fsync  = noop_fsync,
 };
 
 const struct file_operations nullfs_real_file_operations = {
@@ -449,6 +473,7 @@ static const struct inode_operations nullfs_dir_inode_operations = {
     .mknod      = nullfs_mknod,
     .rename     = simple_rename,
     .getattr    = nullfs_getattr,
+    .set_acl    = nullfs_set_acl,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)
     .tmpfile	= nullfs_tmpfile,
 #endif
@@ -500,6 +525,8 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
     sb->s_magic          = NULLFS_MAGIC;
     sb->s_op             = &nullfs_ops;
     sb->s_time_gran      = 1;
+    sb->s_xattr          = nullfs_xattr_handlers;
+    sb->s_flags         |= SB_POSIXACL;
 
     inode = nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0, sb->s_root);
     sb->s_root = d_make_root(inode);

@@ -98,6 +98,11 @@ Keep in mind that file data is kept in memory and no boundary checks are done,
 so this might fill up your RAM in case you exclude big files from beeing
 nulled.
 
+### ACL
+
+It is possible to set POSIX ACL attributes via `setfacl` so it appears the
+filesystem supports them, but of course they are not saved.
+
 ### usecases
 
 See: [Use Cases ](https://github.com/abbbi/nullfsvfs/labels/Usecase)

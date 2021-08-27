@@ -1,5 +1,4 @@
 obj-m := nullfs.o
-lwn-objs := nullfs.o
 
 all: ko
 ko:
