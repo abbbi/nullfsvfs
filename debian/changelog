@@ -1,6 +1,7 @@
 nullfsvfs (0.9) UNRELEASED; urgency=medium
 
   * Raise version, new tarball with spec file included.
+  * Simulates support for Posix ACL's
 
  -- Michael Ablassmeier <abi@grinser.de>  Thu, 26 Aug 2021 15:57:22 +0200
 
