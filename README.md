@@ -127,3 +127,4 @@ The following mount options are supported:
   can be passed during kernel module load
 * support multiple parameters for write= option
 * allow regex for write= option via trace.h
+* simulate xattr support?
