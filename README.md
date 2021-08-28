@@ -101,7 +101,7 @@ nulled.
 ### ACL
 
 It is possible to set POSIX ACL attributes via `setfacl` so it appears the
-filesystem supports them, but of course they are not saved.
+filesystem supports them, they are not saved.
 
 ### usecases
 
