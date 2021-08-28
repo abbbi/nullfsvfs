@@ -82,7 +82,7 @@ static ssize_t exclude_show(struct kobject *kobj, struct kobj_attribute *attr,
 }
 
 static ssize_t exclude_store(struct kobject *kobj, struct kobj_attribute *attr,
-			 const char *buf, size_t count)
+        const char *buf, size_t count)
 {
     char *p;
     p = strchr(buf,'\n');
@@ -112,8 +112,8 @@ static struct kobject *exclude_kobj;
  * regular filesystem handlers, inode handling etc..
  **/
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
-static int nullfs_getattr(struct user_namespace *mnt_userns, const struct path *path, struct kstat *stat,
-					 u32 request_mask, unsigned int flags)
+static int nullfs_getattr(struct user_namespace *mnt_userns,
+        const struct path *path, struct kstat *stat, u32 request_mask, unsigned int flags)
 {
 		struct inode *inode = path->dentry->d_inode;
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
@@ -122,7 +122,8 @@ static int nullfs_getattr(const struct path *path, struct kstat *stat,
 {
 		struct inode *inode = path->dentry->d_inode;
 #else
-		static int nullfs_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
+		static int nullfs_getattr(struct vfsmount *mnt,
+                struct dentry *dentry, struct kstat *stat)
 		{
 				struct inode *inode = dentry->d_inode;
 #endif
@@ -140,7 +141,7 @@ static int nullfs_getattr(const struct path *path, struct kstat *stat,
 }
 
 static ssize_t write_null(struct file *filp, const char *buf,
-                size_t count, loff_t *offset) {
+        size_t count, loff_t *offset) {
     /**
      * keep track of size
      **/
@@ -150,7 +151,7 @@ static ssize_t write_null(struct file *filp, const char *buf,
 }
 
 static ssize_t read_null(struct file *filp, char *buf,
-                size_t count, loff_t *offset) {
+        size_t count, loff_t *offset) {
 
     /**
      * Pretend we have returned some data
@@ -305,7 +306,7 @@ static int nullfs_show_options(struct seq_file *m, struct dentry *root)
 }
 
 struct inode *nullfs_get_inode(struct super_block *sb,
-                const struct inode *dir, umode_t mode, dev_t dev, struct dentry *dentry)
+        const struct inode *dir, umode_t mode, dev_t dev, struct dentry *dentry)
 {
     struct inode * inode = new_inode(sb);
     struct nullfs_fs_info *fsi = sb->s_fs_info;
@@ -361,7 +362,8 @@ struct inode *nullfs_get_inode(struct super_block *sb,
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
-static int nullfs_mknod(struct user_namespace *mnt_userns, struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
+static int nullfs_mknod(struct user_namespace *mnt_userns,
+        struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
 # else
 static int nullfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
 #endif
@@ -391,7 +393,8 @@ static int nullfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, 
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
-static int nullfs_mkdir(struct user_namespace *mnt_userns, struct inode * dir, struct dentry * dentry, umode_t mode)
+static int nullfs_mkdir(struct user_namespace *mnt_userns,
+        struct inode * dir, struct dentry * dentry, umode_t mode)
 #else
 static int nullfs_mkdir(struct inode * dir, struct dentry * dentry, umode_t mode)
 #endif
@@ -409,7 +412,8 @@ static int nullfs_mkdir(struct inode * dir, struct dentry * dentry, umode_t mode
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
-static int nullfs_symlink(struct user_namespace *mnt_userns, struct inode * dir, struct dentry *dentry, const char * symname)
+static int nullfs_symlink(struct user_namespace *mnt_userns,
+        struct inode * dir, struct dentry *dentry, const char * symname)
 #else
 static int nullfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
 #endif
@@ -517,7 +521,7 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
 
     err = nullfs_parse_options(data, &fsi->mount_opts);
     if(err)
-	return err;
+        return err;
 
     sb->s_maxbytes       = MAX_LFS_FILESIZE;
     sb->s_blocksize      = PAGE_SIZE;
