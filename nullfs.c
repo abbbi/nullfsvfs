@@ -193,6 +193,7 @@ const struct file_operations nullfs_real_file_operations = {
 const struct inode_operations nullfs_file_inode_operations = {
     .setattr    = simple_setattr,
     .getattr    = nullfs_getattr,
+    .set_acl    = nullfs_set_acl,
 };
 
 static const struct address_space_operations nullfs_aops = {
