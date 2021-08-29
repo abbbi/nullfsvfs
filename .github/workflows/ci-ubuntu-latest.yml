@@ -32,6 +32,7 @@ jobs:
         sudo touch /mnt/acl_file
         sudo setfacl -m d:u:root:r /mnt/acl_dir
         sudo setfacl -m u:root:r /mnt/acl_file
+        sudo setfacl -m u:root:r /mnt/nod
     - name: Test O_DIRECT
       run: sudo dd if=/dev/zero of=/mnt/direct bs=1M count=1953 oflag=direct
     - name: Test filesize

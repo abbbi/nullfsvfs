@@ -195,7 +195,11 @@ const struct inode_operations nullfs_file_inode_operations = {
     .getattr    = nullfs_getattr,
     .set_acl    = nullfs_set_acl,
 };
-
+const struct inode_operations nullfs_special_inode_operations = {
+    .setattr    = simple_setattr,
+    .getattr    = nullfs_getattr,
+    .set_acl    = nullfs_set_acl,
+};
 static const struct address_space_operations nullfs_aops = {
     .readpage    = simple_readpage,
     .write_begin = simple_write_begin,
@@ -334,6 +338,7 @@ struct inode *nullfs_get_inode(struct super_block *sb,
         switch (mode & S_IFMT) {
         default:
             init_special_inode(inode, mode, dev);
+            inode->i_op = &nullfs_special_inode_operations;
             break;
         case S_IFREG:
             inode->i_op = &nullfs_file_inode_operations;
