@@ -16,8 +16,12 @@ jobs:
       run: rm -f nullfsvfs-build-deps*.deb
     - name: Build Debian package
       run: sudo -E dpkg-buildpackage -uc -us -b
+  install:
+    runs-on: ubuntu-latest
     - name: Install generated Package
       run: sudo dpkg -i ../nullfsvfs_*_amd64.deb
+  test:
+    runs-on: ubuntu-latest
     - name: Modprobe kernel module
       run: sudo modprobe nullfs
     - name: Mount nullfs
