@@ -18,10 +18,12 @@ jobs:
       run: sudo -E dpkg-buildpackage -uc -us -b
   install:
     runs-on: ubuntu-latest
+    steps:
     - name: Install generated Package
       run: sudo dpkg -i ../nullfsvfs_*_amd64.deb
   test:
     runs-on: ubuntu-latest
+    steps:
     - name: Modprobe kernel module
       run: sudo modprobe nullfs
     - name: Mount nullfs
