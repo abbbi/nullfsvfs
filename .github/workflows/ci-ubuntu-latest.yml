@@ -22,8 +22,10 @@ jobs:
       run: sudo modprobe nullfs
     - name: Mount nullfs
       run: sudo mount -t nullfs none /mnt
-    - name: Copy files to nullfs
+    - name: Test filecopy
       run: sudo cp -r /etc/ /mnt/
+    - name: Test mknod
+      run: sudo mknod /mnt/nod c 1 8
     - name: Test acl
       run: |
         sudo mkdir /mnt/acl_dir
