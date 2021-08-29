@@ -32,5 +32,7 @@ jobs:
         sudo setfacl -m u:root:r /mnt/file
     - name: Test O_DIRECT
       run: sudo dd if=/dev/zero of=/mnt/direct bs=1M count=1953 oflag=direct
+    - name: Test filesize
+      run: sudo stat --printf '%s' /mnt/direct | grep 2047868928
     - name: Umount nullfs
       run: sudo umount /mnt
