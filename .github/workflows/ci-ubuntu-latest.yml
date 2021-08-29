@@ -4,9 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - uses: abbbi/github-actions-tune@v1
@@ -26,9 +24,13 @@ jobs:
       run: sudo mount -t nullfs none /mnt
     - name: Copy files to nullfs
       run: sudo cp -r /etc/ /mnt/
-    - name: run setfacl
+    - name: Test acl
       run: |
-        sudo mkdir /mnt/acl
-        sudo setfacl -m d:u:root:r /mnt/acl
+        sudo mkdir /mnt/acl_dir
+        sudo touch /mnt/acl_file
+        sudo setfacl -m d:u:root:r /mnt/acl_dir
+        sudo setfacl -m u:root:r /mnt/file
+    - name: Test O_DIRECT
+      run: sudo dd if=/dev/zero of=/mnt/direct bs=1M count=1953 oflag=direct
     - name: Umount nullfs
       run: sudo umount /mnt
