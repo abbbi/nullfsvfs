@@ -200,12 +200,14 @@ const struct inode_operations nullfs_special_inode_operations = {
     .getattr    = nullfs_getattr,
     .set_acl    = nullfs_set_acl,
 };
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 14, 0)
 static const struct address_space_operations nullfs_aops = {
     .readpage    = simple_readpage,
     .write_begin = simple_write_begin,
     .write_end   = simple_write_end,
     .direct_IO   = noop_direct_IO
 };
+#endif
 
 static const struct inode_operations nullfs_dir_inode_operations;
 static const struct super_operations nullfs_ops;
@@ -323,7 +325,11 @@ struct inode *nullfs_get_inode(struct super_block *sb,
 #else
         inode_init_owner(inode, dir, mode);
 #endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 14, 0)
+        inode->i_mapping->a_ops = &ram_aops;
+#else
         inode->i_mapping->a_ops = &nullfs_aops; 
+#endif
         if (!uid_eq(fsi->mount_opts.uid, GLOBAL_ROOT_UID))
             inode->i_uid = fsi->mount_opts.uid;
         if (!gid_eq(fsi->mount_opts.gid, GLOBAL_ROOT_GID))
