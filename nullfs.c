@@ -34,17 +34,15 @@
 #include <linux/fs.h> 
 #include <linux/slab.h>
 #include <linux/statfs.h>
-
 #include <linux/posix_acl.h>
 #include <linux/posix_acl_xattr.h>
-
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
 
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE  0755
 #define NULLFS_SYSFS_MODE  0644
-#define NULLFS_VERSION "0.10"
+#define NULLFS_VERSION "0.11"
 
 MODULE_AUTHOR("Michael Ablassmeier");
 MODULE_LICENSE("GPL");
