@@ -1,4 +1,10 @@
-nullfsvfs (0.9) UNRELEASED; urgency=medium
+nullfsvfs (0.10) UNRELEASED; urgency=medium
+
+  * Add support for kernel versions >= 5.14
+
+ --  Michael Ablassmeier <abi@grinser.de>  Fri, 10 Sep 2021 15:56:49 +0200
+
+nullfsvfs (0.9) unstable; urgency=medium
 
   * Raise version, new tarball with spec file included.
   * Simulates support for Posix ACL's
