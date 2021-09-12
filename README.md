@@ -111,6 +111,8 @@ The module has been used for performance testing with redis, see:
 
  https://www.usenix.org/system/files/atc20-george.pdf
 
+Please report usecases as regular issues!
+
 ### supported
 
 The following mount options are supported:
