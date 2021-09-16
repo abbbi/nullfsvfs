@@ -123,6 +123,15 @@ The following mount options are supported:
  
 ```
 
+### boot
+
+To automatically load filesystem module during boot time, create a configuration
+file suitable for your distribution, usually located in */etc/modules-load.d*
+
+```
+echo nullfs > /etc/modules-load.d/nullfs.conf
+```
+
 ### todos/ideas
 
 * replace simple_statfs call with real one, show free space of a directory that
