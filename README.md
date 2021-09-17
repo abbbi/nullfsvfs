@@ -9,11 +9,11 @@
  - [Mount options](#supported)
 
 # nullfs
-a virtual file system that behaves like /dev/null
+A virtual file system that behaves like /dev/null
 
 It can handle regular file operations like mkdir/rmdir/ln but writing to files
-does not store any data. The file size is however saved, so reading from the
-files behaves like reading from /dev/zero with a fixed size.
+does not store any data. The file size is however saved, reading from the
+files behaves like reading from /dev/zero.
 
 Writing and reading is basically an NOOP, so it can be used for performance
 testing with applications that require directory structures.  Implemented as
