@@ -49,17 +49,6 @@ MODULE_LICENSE("GPL");
 MODULE_VERSION(NULLFS_VERSION);
 
 /*
- * Support kernel versions used on sles15 (4.x)
- * regarding direct IO
- */
-#ifndef noop_direct_IO
-ssize_t noop_direct_IO(struct kiocb *iocb, struct iov_iter *iter) {
-        return 0;
-}
-#endif
-
-
-/*
  * POSIX ACL
  * setfacl is possible, but acls are not stored, of course
  *
