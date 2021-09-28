@@ -596,9 +596,9 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
     sb->s_xattr          = nullfs_xattr_handlers;
 
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(5, 0, 0)
-     sb->s_flags	 |= MS_POSIXACL;
+     sb->s_flags	    |= MS_POSIXACL;
 #else
-     sb->s_flags         |= SB_POSIXACL;
+     sb->s_flags        |= SB_POSIXACL;
 #endif
 
     inode = nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0, sb->s_root);
