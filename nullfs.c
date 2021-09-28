@@ -66,7 +66,7 @@ ssize_t noop_direct_IO(struct kiocb *iocb, struct iov_iter *iter) {
  * For older kernel versions (3.x, used on rhel7/centos7 its required to 
  * redefine some non-public functions to make it "work"
  */
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 10, 0)
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 19, 0)
 #include <linux/generic_acl.h>
 static size_t generic_acl_list(struct dentry *dentry, char *list, size_t list_size,
     const char *name, size_t name_len, int type) {
@@ -99,7 +99,7 @@ const struct xattr_handler generic_acl_default_handler = {
 static int nullfs_set_acl(struct user_namespace *mnt_userns,
         struct inode *inode, struct posix_acl *acl, int type)
 #else
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 10, 0)
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 19, 0)
 static int nullfs_set_acl(struct dentry *dentry, struct iattr *attr)
 #else
 static int nullfs_set_acl(struct inode *inode, struct posix_acl *acl, int type)
@@ -109,7 +109,7 @@ static int nullfs_set_acl(struct inode *inode, struct posix_acl *acl, int type)
     return 0;
 }
 static const struct xattr_handler *nullfs_xattr_handlers[] = {
-#if LINUX_VERSION_CODE > KERNEL_VERSION(3, 10, 0)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3, 19, 0)
     &posix_acl_access_xattr_handler,
     &posix_acl_default_xattr_handler,
 #else
@@ -242,7 +242,7 @@ const struct file_operations nullfs_real_file_operations = {
 const struct inode_operations nullfs_file_inode_operations = {
     .setattr    = simple_setattr,
     .getattr    = nullfs_getattr,
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 10, 0)
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 19, 0)
     .setattr    = nullfs_set_acl,
 #else
     .set_acl    = nullfs_set_acl,
@@ -251,7 +251,7 @@ const struct inode_operations nullfs_file_inode_operations = {
 const struct inode_operations nullfs_special_inode_operations = {
     .setattr    = simple_setattr,
     .getattr    = nullfs_getattr,
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 10, 0)
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 19, 0)
     .setattr    = nullfs_set_acl,
 #else
     .set_acl    = nullfs_set_acl,
@@ -548,7 +548,7 @@ static const struct inode_operations nullfs_dir_inode_operations = {
     .mknod      = nullfs_mknod,
     .rename     = simple_rename,
     .getattr    = nullfs_getattr,
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 10, 0)
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 19, 0)
     .setattr    = nullfs_set_acl,
 #else
     .set_acl    = nullfs_set_acl,
