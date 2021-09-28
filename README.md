@@ -103,6 +103,9 @@ nulled.
 It is possible to set POSIX ACL attributes via `setfacl` so it appears the
 filesystem supports them, they are not saved.
 
+Works with recent linux kernels (5.x), nullfs builds fine with older kernels
+(4.x, 3.x) but setting ACL information fails with "Operation not supported".
+
 ### usecases
 
 See: [Use Cases ](https://github.com/abbbi/nullfsvfs/labels/Usecase)
