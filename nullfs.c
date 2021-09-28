@@ -595,7 +595,7 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
     sb->s_time_gran      = 1;
     sb->s_xattr          = nullfs_xattr_handlers;
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 10, 0)
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(5, 0, 0)
      sb->s_flags	 |= MS_POSIXACL;
 #else
      sb->s_flags         |= SB_POSIXACL;
