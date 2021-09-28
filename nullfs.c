@@ -53,61 +53,24 @@ MODULE_VERSION(NULLFS_VERSION);
  * setfacl is possible, but acls are not stored, of course
  *
  * For older kernel versions (3.x, used on rhel7/centos7 its required to 
- * redefine some non-public functions to make it "work"
+ * redefine some non-public functions to make it "work", so we skip..
  */
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 19, 0)
-#include <linux/generic_acl.h>
-static size_t generic_acl_list(struct dentry *dentry, char *list, size_t list_size,
-    const char *name, size_t name_len, int type) {
-	return 0;
-}
-static int generic_acl_get(struct dentry *dentry, const char *name, void *buffer,
-	 size_t size, int type) {
-	return 0;
-}
-static int generic_acl_set(struct dentry *dentry, const char *name, const void *value,
-size_t size, int flags, int type) {
-	return 0;
-}
-const struct xattr_handler generic_acl_access_handler = {
-	.prefix = POSIX_ACL_XATTR_ACCESS,
-	.flags = ACL_TYPE_ACCESS,
-	.list  = generic_acl_list,
-	.get   = generic_acl_get,
-	.set   = generic_acl_set,
- };
-const struct xattr_handler generic_acl_default_handler = {
-	.prefix = POSIX_ACL_XATTR_ACCESS,
-	.flags = ACL_TYPE_ACCESS,
-	.list  = generic_acl_list,
-	.get   = generic_acl_get,
-	.set   = generic_acl_set,
- };
-#endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
+static const struct xattr_handler *nullfs_xattr_handlers[] = {
+    &posix_acl_access_xattr_handler,
+    &posix_acl_default_xattr_handler,
+    NULL
+};
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
 static int nullfs_set_acl(struct user_namespace *mnt_userns,
         struct inode *inode, struct posix_acl *acl, int type)
 #else
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 19, 0)
-static int nullfs_set_acl(struct dentry *dentry, struct iattr *attr)
-#else
 static int nullfs_set_acl(struct inode *inode, struct posix_acl *acl, int type)
-#endif
 #endif
 {
     return 0;
 }
-static const struct xattr_handler *nullfs_xattr_handlers[] = {
-#if LINUX_VERSION_CODE > KERNEL_VERSION(3, 19, 0)
-    &posix_acl_access_xattr_handler,
-    &posix_acl_default_xattr_handler,
-#else
-    &generic_acl_access_handler,
-    &generic_acl_default_handler,
 #endif
-    NULL
-};
-
 
 /*
  * sysfs handlers
@@ -231,18 +194,14 @@ const struct file_operations nullfs_real_file_operations = {
 const struct inode_operations nullfs_file_inode_operations = {
     .setattr    = simple_setattr,
     .getattr    = nullfs_getattr,
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 19, 0)
-    .setattr    = nullfs_set_acl,
-#else
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
     .set_acl    = nullfs_set_acl,
 #endif
 };
 const struct inode_operations nullfs_special_inode_operations = {
     .setattr    = simple_setattr,
     .getattr    = nullfs_getattr,
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 19, 0)
-    .setattr    = nullfs_set_acl,
-#else
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
     .set_acl    = nullfs_set_acl,
 #endif
 };
@@ -537,9 +496,7 @@ static const struct inode_operations nullfs_dir_inode_operations = {
     .mknod      = nullfs_mknod,
     .rename     = simple_rename,
     .getattr    = nullfs_getattr,
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3, 19, 0)
-    .setattr    = nullfs_set_acl,
-#else
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
     .set_acl    = nullfs_set_acl,
 #endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)
@@ -593,12 +550,9 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
     sb->s_magic          = NULLFS_MAGIC;
     sb->s_op             = &nullfs_ops;
     sb->s_time_gran      = 1;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
     sb->s_xattr          = nullfs_xattr_handlers;
-
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(5, 0, 0)
-     sb->s_flags	    |= MS_POSIXACL;
-#else
-     sb->s_flags        |= SB_POSIXACL;
+    sb->s_flags         |= SB_POSIXACL;
 #endif
 
     inode = nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0, sb->s_root);
