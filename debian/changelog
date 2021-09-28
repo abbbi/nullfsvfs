@@ -1,4 +1,12 @@
-nullfsvfs (0.10) UNRELEASED; urgency=medium
+nullfsvfs (0.11) UNRELEASED; urgency=medium
+
+  * Re-Add support for older linux kernel versions (3.10.x) used
+  by RHEL7 and Centos7, which was broken by adding Posix ACL
+  support
+
+ -- Michael Ablassmeier <abi@grinser.de>  Tue, 28 Sep 2021 16:37:59 +0200
+
+nullfsvfs (0.10) unstable; urgency=medium
 
   * Add support for kernel versions >= 5.14
 
