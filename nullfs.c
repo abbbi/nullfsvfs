@@ -210,7 +210,12 @@ static const struct address_space_operations nullfs_aops = {
     .readpage    = simple_readpage,
     .write_begin = simple_write_begin,
     .write_end   = simple_write_end,
+/**
+ * RHEL kernel exports noop_direct_IO, SLES15 does not
+ **/
+#ifdef RHEL_MAJOR
     .direct_IO   = noop_direct_IO
+#endif
 };
 #endif
 
