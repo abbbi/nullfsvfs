@@ -213,7 +213,11 @@ static const struct address_space_operations nullfs_aops = {
 /**
  * RHEL kernel exports noop_direct_IO, SLES15 does not
  **/
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(5, 0, 0)
 #ifdef RHEL_MAJOR
+    .direct_IO   = noop_direct_IO
+#endif
+#else
     .direct_IO   = noop_direct_IO
 #endif
 };
