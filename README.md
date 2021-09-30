@@ -77,9 +77,22 @@ makes it behave like reading from /dev/zero:
 To install the module for the running linux kernel use:
 
 ```
- make -C /lib/modules/$(uname -r)/build M=$PWD modules_install INSTALL_MOD_DIR=fs
+ # make -C /lib/modules/$(uname -r)/build M=$PWD modules_install INSTALL_MOD_DIR=fs
+ # depmod
 ```
 
+Running `depmod` is mandatory. Now the module can be loaded via:
+
+```
+ modprobe  nullfs
+``` 
+
+To automatically load filesystem module during boot time, create a configuration
+file suitable for your distribution, usually located in */etc/modules-load.d*
+
+```
+echo nullfs > /etc/modules-load.d/nullfs.conf
+```
 
 ### keep
 
@@ -134,15 +147,6 @@ The following mount options are supported:
  -o uid=       set uid on mount directory ( mount .. -o uid=1000 )
  -o gid=       set gid on mount directory ( mount .. -o gid=1000 )
  
-```
-
-### boot
-
-To automatically load filesystem module during boot time, create a configuration
-file suitable for your distribution, usually located in */etc/modules-load.d*
-
-```
-echo nullfs > /etc/modules-load.d/nullfs.conf
 ```
 
 ### todos/ideas
