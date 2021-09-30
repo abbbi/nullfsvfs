@@ -94,6 +94,13 @@ file suitable for your distribution, usually located in */etc/modules-load.d*
 echo nullfs > /etc/modules-load.d/nullfs.conf
 ```
 
+Example entry for `/etc/fstab`, mounting the filesystem to `/nullfs`:
+
+
+```
+none    /nullfs nullfs auto
+```
+
 ### keep
 
 There is the possiblity to exclude certain files from beeing sent into the void.
