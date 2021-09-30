@@ -76,7 +76,7 @@ makes it behave like reading from /dev/zero:
 
 To install the module for the running linux kernel use:
 
- make -C /lib/modules/$(`uname -r)`/build M=$PWD modules_install
+ make -C /lib/modules/$(uname -r)/build M=$PWD modules_install
 
 
 ### keep
