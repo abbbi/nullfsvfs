@@ -4,6 +4,7 @@
 
  - [About](#nullfs)
  - [Usage](#usage)
+ - [Installation](#installation)
  - [Use Cases](#usecases)
  - [Keeping data](#keep)
  - [Mount options](#supported)
@@ -69,6 +70,13 @@ makes it behave like reading from /dev/zero:
 # hexdump -C /tmp/REALFILE
 # 00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 ```
+
+
+## installation
+
+To install the module for the running linux kernel use:
+
+ make -C /lib/modules/`uname -r`/build M=$PWD modules_install
 
 
 ### keep
