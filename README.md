@@ -1,4 +1,4 @@
-![ci](https://github.com/abbbi/nullfsvfs/actions/workflows/ci-ubuntu-latest.yml/badge.svg)
+[![nullfsvfs CI on ubuntu-latest](https://github.com/abbbi/nullfsvfs/actions/workflows/ci-ubuntu-latest.yml/badge.svg?branch=master)](https://github.com/abbbi/nullfsvfs/actions/workflows/ci-ubuntu-latest.yml)
 
 ## Index
 
