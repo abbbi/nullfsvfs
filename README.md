@@ -77,7 +77,7 @@ makes it behave like reading from /dev/zero:
 To install the module for the running linux kernel use:
 
 ```
- # make -C /lib/modules/$(uname -r)/build M=$PWD modules_install INSTALL_MOD_DIR=fs
+ # make -C /lib/modules/$(uname -r)/build M=$PWD modules_install INSTALL_MOD_DIR=kernel/fs/nullfs
  # depmod
 ```
 
