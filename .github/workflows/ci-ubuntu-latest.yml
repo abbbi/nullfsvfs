@@ -8,6 +8,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: abbbi/github-actions-tune@v1
+    - name: apt update
+      run: sudo apt-get update
     - name: Install build-essential and devscripts
       run: sudo apt-get install build-essential devscripts equivs acl
     - name: Install Kernel Build Dependencies
