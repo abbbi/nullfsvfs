@@ -1,4 +1,19 @@
-nullfsvfs (0.10) UNRELEASED; urgency=medium
+nullfsvfs (0.12) unstable; urgency=medium
+
+  * Fix build on SLES based kernels, add #ifdef for RHEL_MAJOR.
+  Module now builds on RHEL/Centos7,SLES12,SLES15 and newer.
+
+ -- Michael Ablassmeier <abi@grinser.de>  Wed, 29 Sep 2021 10:45:37 +0200
+
+nullfsvfs (0.11) unstable; urgency=medium
+
+  * Re-Add support for older linux kernel versions (3.10.x) used
+  by RHEL7 and Centos7 and SLES15, which was broken by adding Posix ACL
+  and O_DIRECT support.
+
+ -- Michael Ablassmeier <abi@grinser.de>  Tue, 28 Sep 2021 16:37:59 +0200
+
+nullfsvfs (0.10) unstable; urgency=medium
 
   * Add support for kernel versions >= 5.14
 

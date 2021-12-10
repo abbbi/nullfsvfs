@@ -1,19 +1,20 @@
-![ci](https://github.com/abbbi/nullfsvfs/actions/workflows/ci-ubuntu-latest.yml/badge.svg)
+[![nullfsvfs CI on ubuntu-latest](https://github.com/abbbi/nullfsvfs/actions/workflows/ci-ubuntu-latest.yml/badge.svg?branch=master)](https://github.com/abbbi/nullfsvfs/actions/workflows/ci-ubuntu-latest.yml)
 
 ## Index
 
  - [About](#nullfs)
  - [Usage](#usage)
+ - [Installation](#installation)
  - [Use Cases](#usecases)
  - [Keeping data](#keep)
  - [Mount options](#supported)
 
 # nullfs
-a virtual file system that behaves like /dev/null
+A virtual file system that behaves like /dev/null
 
 It can handle regular file operations like mkdir/rmdir/ln but writing to files
-does not store any data. The file size is however saved, so reading from the
-files behaves like reading from /dev/zero with a fixed size.
+does not store any data. The file size is however saved, reading from the
+files behaves like reading from /dev/zero.
 
 Writing and reading is basically an NOOP, so it can be used for performance
 testing with applications that require directory structures.  Implemented as
@@ -71,6 +72,35 @@ makes it behave like reading from /dev/zero:
 ```
 
 
+## installation
+
+To install the module for the running linux kernel use:
+
+```
+ # make -C /lib/modules/$(uname -r)/build M=$PWD modules_install INSTALL_MOD_DIR=kernel/fs/nullfs
+ # depmod
+```
+
+Running `depmod` is mandatory. Now the module can be loaded via:
+
+```
+ modprobe  nullfs
+``` 
+
+To automatically load filesystem module during boot time, create a configuration
+file suitable for your distribution, usually located in */etc/modules-load.d*
+
+```
+echo nullfs > /etc/modules-load.d/nullfs.conf
+```
+
+Example entry for `/etc/fstab`, mounting the filesystem to `/nullfs`:
+
+
+```
+none    /nullfs nullfs auto
+```
+
 ### keep
 
 There is the possiblity to exclude certain files from beeing sent into the void.
@@ -102,6 +132,9 @@ nulled.
 
 It is possible to set POSIX ACL attributes via `setfacl` so it appears the
 filesystem supports them, they are not saved.
+
+Works with recent linux kernels (5.x), nullfs builds fine with older kernels
+(4.x, 3.x) but setting ACL information fails with "Operation not supported".
 
 ### usecases
 

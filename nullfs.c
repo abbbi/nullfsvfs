@@ -42,7 +42,7 @@
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE  0755
 #define NULLFS_SYSFS_MODE  0644
-#define NULLFS_VERSION "0.11"
+#define NULLFS_VERSION "0.12"
 
 MODULE_AUTHOR("Michael Ablassmeier");
 MODULE_LICENSE("GPL");
@@ -51,8 +51,16 @@ MODULE_VERSION(NULLFS_VERSION);
 /*
  * POSIX ACL
  * setfacl is possible, but acls are not stored, of course
+ *
+ * For older kernel versions (3.x, used on rhel7/centos7 its required to 
+ * redefine some non-public functions to make it "work", so we skip..
  */
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
+static const struct xattr_handler *nullfs_xattr_handlers[] = {
+    &posix_acl_access_xattr_handler,
+    &posix_acl_default_xattr_handler,
+    NULL
+};
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
 static int nullfs_set_acl(struct user_namespace *mnt_userns,
         struct inode *inode, struct posix_acl *acl, int type)
@@ -62,12 +70,7 @@ static int nullfs_set_acl(struct inode *inode, struct posix_acl *acl, int type)
 {
     return 0;
 }
-static const struct xattr_handler *nullfs_xattr_handlers[] = {
-    &posix_acl_access_xattr_handler,
-    &posix_acl_default_xattr_handler,
-    NULL
-};
-
+#endif
 
 /*
  * sysfs handlers
@@ -191,19 +194,32 @@ const struct file_operations nullfs_real_file_operations = {
 const struct inode_operations nullfs_file_inode_operations = {
     .setattr    = simple_setattr,
     .getattr    = nullfs_getattr,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
     .set_acl    = nullfs_set_acl,
+#endif
 };
 const struct inode_operations nullfs_special_inode_operations = {
     .setattr    = simple_setattr,
     .getattr    = nullfs_getattr,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
     .set_acl    = nullfs_set_acl,
+#endif
 };
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 14, 0)
 static const struct address_space_operations nullfs_aops = {
     .readpage    = simple_readpage,
     .write_begin = simple_write_begin,
     .write_end   = simple_write_end,
+/**
+ * RHEL kernel exports noop_direct_IO, SLES15 does not
+ **/
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(5, 0, 0)
+#ifdef RHEL_MAJOR
     .direct_IO   = noop_direct_IO
+#endif
+#else
+    .direct_IO   = noop_direct_IO
+#endif
 };
 #endif
 
@@ -462,6 +478,7 @@ static int nullfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 #endif
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
 static int nullfs_tmpfile(struct user_namespace *mnt_userns, struct inode *dir, struct dentry *dentry, umode_t mode)
 #else
@@ -475,6 +492,7 @@ static int nullfs_tmpfile(struct inode *dir, struct dentry *dentry, umode_t mode
     d_tmpfile(dentry, inode);
     return 0;
 }
+#endif
 
 static const struct inode_operations nullfs_dir_inode_operations = {
     .create     = nullfs_create,
@@ -487,7 +505,9 @@ static const struct inode_operations nullfs_dir_inode_operations = {
     .mknod      = nullfs_mknod,
     .rename     = simple_rename,
     .getattr    = nullfs_getattr,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
     .set_acl    = nullfs_set_acl,
+#endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)
     .tmpfile	= nullfs_tmpfile,
 #endif
@@ -539,8 +559,10 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
     sb->s_magic          = NULLFS_MAGIC;
     sb->s_op             = &nullfs_ops;
     sb->s_time_gran      = 1;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
     sb->s_xattr          = nullfs_xattr_handlers;
     sb->s_flags         |= SB_POSIXACL;
+#endif
 
     inode = nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0, sb->s_root);
     sb->s_root = d_make_root(inode);
