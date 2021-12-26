@@ -39,6 +39,7 @@
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
 #include <linux/exportfs.h>
+#include <linux/uuid.h>
 
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE  0755
@@ -597,6 +598,13 @@ static const struct inode_operations nullfs_dir_inode_operations = {
 #endif
 };
 
+static inline __kernel_fsid_t uuid_to_fsid(__u8 *uuid)
+{
+    return u64_to_fsid(le64_to_cpup((void *)uuid) ^
+        le64_to_cpup((void *)(uuid + sizeof(u64))));
+}
+
+
 int nullfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 {
     /**
@@ -613,6 +621,8 @@ int nullfs_statfs(struct dentry *dentry, struct kstatfs *buf)
     buf->f_bfree =  90000000;
     buf->f_bavail = 90000000;
     buf->f_namelen = NAME_MAX;
+
+    buf->f_fsid = uuid_to_fsid(dentry->d_sb->s_uuid.b);
     return 0;
 }
 
@@ -647,6 +657,8 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
     sb->s_xattr          = nullfs_xattr_handlers;
     sb->s_flags         |= SB_POSIXACL;
 #endif
+
+    uuid_gen(&sb->s_uuid);
 
     inode = nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0, sb->s_root);
     sb->s_root = d_make_root(inode);
