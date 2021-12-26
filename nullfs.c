@@ -38,13 +38,16 @@
 #include <linux/posix_acl_xattr.h>
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
+
+#ifdef WITH_NFS
 #include <linux/exportfs.h>
 #include <linux/uuid.h>
+#endif
 
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE  0755
 #define NULLFS_SYSFS_MODE  0644
-#define NULLFS_VERSION "0.12"
+#define NULLFS_VERSION "0.14"
 
 MODULE_AUTHOR("Michael Ablassmeier");
 MODULE_LICENSE("GPL");
@@ -173,35 +176,31 @@ static ssize_t read_null(struct file *filp, char *buf,
     return nbytes;
 }
 
-static struct dentry *shmem_find_alias(struct inode *inode)
+#ifdef WITH_NFS
+/**
+ * required operations for nfs exports, from
+ * the shmem implementation
+ ***/
+static struct dentry *nullfs_find_alias(struct inode *inode)
 {
     struct dentry *alias = d_find_alias(inode);
 
     return alias ?: d_find_any_alias(inode);
 }
 
-
-
-static struct dentry *shmem_get_parent(struct dentry *child)
+static struct dentry *nullfs_get_parent(struct dentry *child)
 {
     return ERR_PTR(-ESTALE);
 }
-
-
-  static int shmem_encode_fh(struct inode *inode, __u32 *fh, int *len,
+static int nullfs_encode_fh(struct inode *inode, __u32 *fh, int *len,
               struct inode *parent)
-  {
-     if (*len < 3) {
-        *len = 3;
-        return FILEID_INVALID;
-     }
+{
+    if (*len < 3) {
+       *len = 3;
+       return FILEID_INVALID;
+    }
 
-     if (inode_unhashed(inode)) {
-        /* Unfortunately insert_inode_hash is not idempotent,
-         * so as we hash inodes here rather than at creation
-         * time, we need a lock to ensure we only try
-         * to do it once
-         */
+    if (inode_unhashed(inode)) {
         static DEFINE_SPINLOCK(lock);
         spin_lock(&lock);
         if (inode_unhashed(inode))
@@ -216,9 +215,9 @@ static struct dentry *shmem_get_parent(struct dentry *child)
 
      *len = 3;
      return 1;
-    }
+}
 
-static int shmem_match(struct inode *ino, void *vfh)
+static int nullfs_match(struct inode *ino, void *vfh)
 {
     __u32 *fh = vfh;
     __u64 inum = fh[2];
@@ -226,8 +225,7 @@ static int shmem_match(struct inode *ino, void *vfh)
     return ino->i_ino == inum && fh[0] == ino->i_generation;
 }
 
-
-static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
+static struct dentry *nullfs_fh_to_dentry(struct super_block *sb,
         struct fid *fid, int fh_len, int fh_type)
 {
     struct inode *inode;
@@ -241,9 +239,9 @@ static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
     inum = (inum << 32) | fid->raw[1];
 
     inode = ilookup5(sb, (unsigned long)(inum + fid->raw[0]),
-            shmem_match, fid->raw);
+            nullfs_match, fid->raw);
     if (inode) {
-        dentry = shmem_find_alias(inode);
+        dentry = nullfs_find_alias(inode);
         iput(inode);
     }
 
@@ -251,10 +249,11 @@ static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
 }
 
 static const struct export_operations nullfs_export_ops = {
-    .get_parent     = shmem_get_parent,
-    .encode_fh      = shmem_encode_fh,
-    .fh_to_dentry  = shmem_fh_to_dentry,
+    .get_parent     = nullfs_get_parent,
+    .encode_fh      = nullfs_encode_fh,
+    .fh_to_dentry  = nullfs_fh_to_dentry,
 };
+#endif
 
 const struct file_operations nullfs_file_operations = {
     .write  = write_null,
@@ -622,7 +621,9 @@ int nullfs_statfs(struct dentry *dentry, struct kstatfs *buf)
     buf->f_bavail = 90000000;
     buf->f_namelen = NAME_MAX;
 
+#ifdef WITH_NFS
     buf->f_fsid = uuid_to_fsid(dentry->d_sb->s_uuid.b);
+#endif
     return 0;
 }
 
@@ -658,8 +659,10 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
     sb->s_flags         |= SB_POSIXACL;
 #endif
 
+#ifdef WITH_NFS
     sb->s_export_op = &nullfs_export_ops;
     uuid_gen(&sb->s_uuid);
+#endif
 
     inode = nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0, sb->s_root);
     sb->s_root = d_make_root(inode);

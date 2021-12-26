@@ -156,6 +156,24 @@ The following mount options are supported:
  
 ```
 
+### NFS
+
+By default nullfs cant be exported via NFS. It is possible to do so by
+compiling the module via WITH_NFS support (only tested on debian bullseye):
+
+```
+make WITH_NFS=1
+```
+
+The directory where nullfs is mounted can then be exported via nfs:
+
+```
+ mount -t nullfs none /null
+ echo "/null localhost(rw,fsid=0,no_root_squash)" >> /etc/exports
+ exportfs -a
+```
+
+
 ### todos/ideas
 
 * replace simple_statfs call with real one, show free space of a directory that
