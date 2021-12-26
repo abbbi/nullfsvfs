@@ -38,6 +38,7 @@
 #include <linux/posix_acl_xattr.h>
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
+#include <linux/exportfs.h>
 
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE  0755
@@ -170,6 +171,89 @@ static ssize_t read_null(struct file *filp, char *buf,
 
     return nbytes;
 }
+
+static struct dentry *shmem_find_alias(struct inode *inode)
+{
+    struct dentry *alias = d_find_alias(inode);
+
+    return alias ?: d_find_any_alias(inode);
+}
+
+
+
+static struct dentry *shmem_get_parent(struct dentry *child)
+{
+    return ERR_PTR(-ESTALE);
+}
+
+
+  static int shmem_encode_fh(struct inode *inode, __u32 *fh, int *len,
+              struct inode *parent)
+  {
+     if (*len < 3) {
+        *len = 3;
+        return FILEID_INVALID;
+     }
+
+     if (inode_unhashed(inode)) {
+        /* Unfortunately insert_inode_hash is not idempotent,
+         * so as we hash inodes here rather than at creation
+         * time, we need a lock to ensure we only try
+         * to do it once
+         */
+        static DEFINE_SPINLOCK(lock);
+        spin_lock(&lock);
+        if (inode_unhashed(inode))
+           __insert_inode_hash(inode,
+                     inode->i_ino + inode->i_generation);
+        spin_unlock(&lock);
+     }
+
+     fh[0] = inode->i_generation;
+     fh[1] = inode->i_ino;
+     fh[2] = ((__u64)inode->i_ino) >> 32;
+
+     *len = 3;
+     return 1;
+    }
+
+static int shmem_match(struct inode *ino, void *vfh)
+{
+    __u32 *fh = vfh;
+    __u64 inum = fh[2];
+    inum = (inum << 32) | fh[1];
+    return ino->i_ino == inum && fh[0] == ino->i_generation;
+}
+
+
+static struct dentry *shmem_fh_to_dentry(struct super_block *sb,
+        struct fid *fid, int fh_len, int fh_type)
+{
+    struct inode *inode;
+    struct dentry *dentry = NULL;
+    u64 inum;
+
+    if (fh_len < 3)
+        return NULL;
+
+    inum = fid->raw[2];
+    inum = (inum << 32) | fid->raw[1];
+
+    inode = ilookup5(sb, (unsigned long)(inum + fid->raw[0]),
+            shmem_match, fid->raw);
+    if (inode) {
+        dentry = shmem_find_alias(inode);
+        iput(inode);
+    }
+
+    return dentry;
+}
+
+static const struct export_operations nullfs_export_ops = {
+    .get_parent     = shmem_get_parent,
+    .encode_fh      = shmem_encode_fh,
+    .fh_to_dentry  = shmem_fh_to_dentry,
+};
 
 const struct file_operations nullfs_file_operations = {
     .write  = write_null,
