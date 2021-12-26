@@ -658,6 +658,7 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
     sb->s_flags         |= SB_POSIXACL;
 #endif
 
+    sb->s_export_op = &nullfs_export_ops;
     uuid_gen(&sb->s_uuid);
 
     inode = nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0, sb->s_root);
