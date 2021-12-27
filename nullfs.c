@@ -181,6 +181,20 @@ static ssize_t read_null(struct file *filp, char *buf,
  * required operations for nfs exports, from
  * the shmem implementation
  ***/
+
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(5, 0, 0)
+static inline __kernel_fsid_t u64_to_fsid(u64 v)
+{
+    return (__kernel_fsid_t){.val = {(u32)v, (u32)(v>>32)}};
+}
+#endif
+
+static inline __kernel_fsid_t uuid_to_fsid(__u8 *uuid)
+{
+    return u64_to_fsid(le64_to_cpup((void *)uuid) ^
+        le64_to_cpup((void *)(uuid + sizeof(u64))));
+}
+
 static struct dentry *nullfs_find_alias(struct inode *inode)
 {
     struct dentry *alias = d_find_alias(inode);
@@ -596,13 +610,6 @@ static const struct inode_operations nullfs_dir_inode_operations = {
     .tmpfile	= nullfs_tmpfile,
 #endif
 };
-
-static inline __kernel_fsid_t uuid_to_fsid(__u8 *uuid)
-{
-    return u64_to_fsid(le64_to_cpup((void *)uuid) ^
-        le64_to_cpup((void *)(uuid + sizeof(u64))));
-}
-
 
 int nullfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 {
