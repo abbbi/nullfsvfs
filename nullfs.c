@@ -206,6 +206,7 @@ static struct dentry *nullfs_get_parent(struct dentry *child)
 {
     return ERR_PTR(-ESTALE);
 }
+
 static int nullfs_encode_fh(struct inode *inode, __u32 *fh, int *len,
               struct inode *parent)
 {
@@ -218,17 +219,17 @@ static int nullfs_encode_fh(struct inode *inode, __u32 *fh, int *len,
         static DEFINE_SPINLOCK(lock);
         spin_lock(&lock);
         if (inode_unhashed(inode))
-           __insert_inode_hash(inode,
-                     inode->i_ino + inode->i_generation);
+            __insert_inode_hash(inode,
+            inode->i_ino + inode->i_generation);
         spin_unlock(&lock);
-     }
+    }
 
-     fh[0] = inode->i_generation;
-     fh[1] = inode->i_ino;
-     fh[2] = ((__u64)inode->i_ino) >> 32;
+    fh[0] = inode->i_generation;
+    fh[1] = inode->i_ino;
+    fh[2] = ((__u64)inode->i_ino) >> 32;
 
-     *len = 3;
-     return 1;
+    *len = 3;
+    return 1;
 }
 
 static int nullfs_match(struct inode *ino, void *vfh)
