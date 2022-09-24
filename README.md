@@ -1,3 +1,5 @@
+[![nullfsvfs CI on ubuntu-latest](https://github.com/abbbi/nullfsvfs/actions/workflows/ci-ubuntu-latest.yml/badge.svg?branch=master)](https://github.com/abbbi/nullfsvfs/actions/workflows/ci-ubuntu-latest.yml)
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
@@ -12,17 +14,6 @@
     - [todos/ideas](#todosideas)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-[![nullfsvfs CI on ubuntu-latest](https://github.com/abbbi/nullfsvfs/actions/workflows/ci-ubuntu-latest.yml/badge.svg?branch=master)](https://github.com/abbbi/nullfsvfs/actions/workflows/ci-ubuntu-latest.yml)
-
-## Index
-
- - [About](#nullfs)
- - [Usage](#usage)
- - [Installation](#installation)
- - [Use Cases](#usecases)
- - [Keeping data](#keep)
- - [Mount options](#supported)
 
 # nullfs
 A virtual file system that behaves like /dev/null
