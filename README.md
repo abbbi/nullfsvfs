@@ -3,11 +3,10 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-  - [Index](#index)
 - [nullfs](#nullfs)
-    - [usage](#usage)
   - [installation](#installation)
-    - [keep](#keep)
+  - [Usage](#usage)
+    - [Keeping file data](#keeping-file-data)
     - [ACL](#acl)
     - [usecases](#usecases)
     - [supported](#supported)
@@ -30,7 +29,6 @@ read operations.
 
 ![alt text](https://github.com/abbbi/nullfsvfs/raw/master/nullfs.jpg)
 
-### usage
 ```
 # sudo make
 make -C /lib/modules/4.18.5/build M=/home/abi/lwnfs modules
@@ -107,7 +105,8 @@ Example entry for `/etc/fstab`, mounting the filesystem to `/nullfs`:
 none    /nullfs nullfs auto
 ```
 
-### keep
+## Usage
+### Keeping file data
 
 There is the possiblity to exclude certain files from beeing sent into the void.
 For example if the file matching "fstab" should be kept in memory, one can mount
