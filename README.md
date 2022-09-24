@@ -1,3 +1,18 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+  - [Index](#index)
+- [nullfs](#nullfs)
+    - [usage](#usage)
+  - [installation](#installation)
+    - [keep](#keep)
+    - [ACL](#acl)
+    - [usecases](#usecases)
+    - [supported](#supported)
+    - [todos/ideas](#todosideas)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 [![nullfsvfs CI on ubuntu-latest](https://github.com/abbbi/nullfsvfs/actions/workflows/ci-ubuntu-latest.yml/badge.svg?branch=master)](https://github.com/abbbi/nullfsvfs/actions/workflows/ci-ubuntu-latest.yml)
 
 ## Index
@@ -26,7 +41,7 @@ read operations.
 
 ### usage
 ```
-# make
+# sudo make
 make -C /lib/modules/4.18.5/build M=/home/abi/lwnfs modules
 make[1]: Entering directory '/usr/src/linux-headers-4.18.5'
   Building modules, stage 2.
@@ -52,11 +67,11 @@ File size is preserved to work around applications that do size checks:
 
 ```
 # dd if=/dev/zero of=/nullfs/DATA bs=1M count=20
-# 20+0 records in
-# 20+0 records out
-# 20971520 bytes (21 MB, 20 MiB) copied, 0.00392452 s, 5.3 GB/s
+20+0 records in
+20+0 records out
+20971520 bytes (21 MB, 20 MiB) copied, 0.00392452 s, 5.3 GB/s
 # stat -c%s /nullfs/DATA
-# 20971520
+20971520
 ```
 
 Reading from the files does not copy anything to userspace and is an NOOP;
@@ -64,11 +79,11 @@ makes it behave like reading from /dev/zero:
 
 ```
 # dd if=/nullfs/DATA of=/tmp/REALFILE
-# 40960+0 records in
-# 40960+0 records out
-# 20971520 bytes (21 MB, 20 MiB) copied, 0.0455288 s, 461 MB/s
+40960+0 records in
+40960+0 records out
+20971520 bytes (21 MB, 20 MiB) copied, 0.0455288 s, 461 MB/s
 # hexdump -C /tmp/REALFILE
-# 00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 ```
 
 
@@ -91,7 +106,7 @@ To automatically load filesystem module during boot time, create a configuration
 file suitable for your distribution, usually located in */etc/modules-load.d*
 
 ```
-echo nullfs > /etc/modules-load.d/nullfs.conf
+ # echo nullfs > /etc/modules-load.d/nullfs.conf
 ```
 
 Example entry for `/etc/fstab`, mounting the filesystem to `/nullfs`:
