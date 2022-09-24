@@ -24,16 +24,31 @@ read operations.
 
 ![alt text](https://github.com/abbbi/nullfsvfs/raw/master/nullfs.jpg)
 
+## installation
+
+To install the module for the running linux kernel use:
+
+```
+ # sudo make -C /lib/modules/$(uname -r)/build M=$PWD modules_install INSTALL_MOD_DIR=kernel/fs/nullfs
+ # sudo depmod
+ # sudo modprobe nullfs
+```
+
+To automatically load filesystem module during boot time, create a configuration
+file suitable for your distribution, usually located in `/etc/modules-load.d`
+
+```
+sudo echo nullfs > /etc/modules-load.d/nullfs.conf
+```
+
+Example entry for `/etc/fstab`, mounting the filesystem to `/nullfs`:
+
+```
+none   /nullfs nullfs auto
+```
+
 ### usage
 ```
-# make
-make -C /lib/modules/4.18.5/build M=/home/abi/lwnfs modules
-make[1]: Entering directory '/usr/src/linux-headers-4.18.5'
-  Building modules, stage 2.
-  MODPOST 1 modules
-make[1]: Leaving directory '/usr/src/linux-headers-4.18.5'
-
-# insmod nullfs.ko 
 # mkdir /sinkhole
 # mount -t nullfs none /sinkhole/
 # mkdir /sinkhole/testdir
@@ -45,18 +60,18 @@ make[1]: Leaving directory '/usr/src/linux-headers-4.18.5'
 # pv < /dev/zero > /sinkhole/testdir/myfile
 11.1GiB 0:00:04 [3.85GiB/s] [     <=>      ] 
 # cat /sinkhole/testdir/myfile
-# 
+
 ```
 
 File size is preserved to work around applications that do size checks:
 
 ```
 # dd if=/dev/zero of=/nullfs/DATA bs=1M count=20
-# 20+0 records in
-# 20+0 records out
-# 20971520 bytes (21 MB, 20 MiB) copied, 0.00392452 s, 5.3 GB/s
+20+0 records in
+20+0 records out
+20971520 bytes (21 MB, 20 MiB) copied, 0.00392452 s, 5.3 GB/s
 # stat -c%s /nullfs/DATA
-# 20971520
+20971520
 ```
 
 Reading from the files does not copy anything to userspace and is an NOOP;
@@ -64,41 +79,11 @@ makes it behave like reading from /dev/zero:
 
 ```
 # dd if=/nullfs/DATA of=/tmp/REALFILE
-# 40960+0 records in
-# 40960+0 records out
-# 20971520 bytes (21 MB, 20 MiB) copied, 0.0455288 s, 461 MB/s
+40960+0 records in
+40960+0 records out
+20971520 bytes (21 MB, 20 MiB) copied, 0.0455288 s, 461 MB/s
 # hexdump -C /tmp/REALFILE
-# 00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
-```
-
-
-## installation
-
-To install the module for the running linux kernel use:
-
-```
- # make -C /lib/modules/$(uname -r)/build M=$PWD modules_install INSTALL_MOD_DIR=kernel/fs/nullfs
- # depmod
-```
-
-Running `depmod` is mandatory. Now the module can be loaded via:
-
-```
- modprobe  nullfs
-``` 
-
-To automatically load filesystem module during boot time, create a configuration
-file suitable for your distribution, usually located in */etc/modules-load.d*
-
-```
-echo nullfs > /etc/modules-load.d/nullfs.conf
-```
-
-Example entry for `/etc/fstab`, mounting the filesystem to `/nullfs`:
-
-
-```
-none    /nullfs nullfs auto
+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 ```
 
 ### keep
