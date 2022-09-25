@@ -35,8 +35,8 @@ jobs:
         sudo setfacl -m d:u:root:r /mnt/acl_dir
         sudo setfacl -m u:root:r /mnt/acl_file
         sudo setfacl -m u:root:r /mnt/nod
-    - name: Test O_DIRECT
-      run: sudo dd if=/dev/zero of=/mnt/direct bs=1M count=1953 oflag=direct
+    - name: Test file
+      run: sudo dd if=/dev/zero of=/mnt/direct bs=1M count=1953
     - name: Test filesize
       run: sudo stat --printf '%s' /mnt/direct | grep 2047868928
     - name: Umount nullfs
