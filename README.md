@@ -5,6 +5,8 @@
 
 - [nullfs](#nullfs)
   - [installation](#installation)
+    - [manual installation](#manual-installation)
+    - [debian package](#debian-package)
   - [Usage](#usage)
     - [Keeping file data](#keeping-file-data)
     - [ACL](#acl)
@@ -78,6 +80,8 @@ makes it behave like reading from /dev/zero:
 
 ## installation
 
+### manual installation
+
 To install the module for the running linux kernel use:
 
 ```
@@ -103,6 +107,14 @@ Example entry for `/etc/fstab`, mounting the filesystem to `/nullfs`:
 
 ```
 none    /nullfs nullfs auto
+```
+
+### debian package
+
+```
+ # apt-get install debhelper dkms
+ # dpkg-buildpackage -r fakeroot
+ # dpkg -i ../nullfsvfs_<version>_amd64.deb
 ```
 
 ## Usage
