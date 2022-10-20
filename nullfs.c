@@ -30,8 +30,8 @@
 #include <linux/seq_file.h>
 #include <linux/parser.h>
 #include <linux/module.h>
-#include <linux/pagemap.h> 
-#include <linux/fs.h> 
+#include <linux/pagemap.h>
+#include <linux/fs.h>
 #include <linux/slab.h>
 #include <linux/statfs.h>
 #include <linux/posix_acl.h>
@@ -52,7 +52,7 @@ MODULE_VERSION(NULLFS_VERSION);
  * POSIX ACL
  * setfacl is possible, but acls are not stored, of course
  *
- * For older kernel versions (3.x, used on rhel7/centos7 its required to 
+ * For older kernel versions (3.x, used on rhel7/centos7 its required to
  * redefine some non-public functions to make it "work", so we skip..
  */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
@@ -342,7 +342,7 @@ struct inode *nullfs_get_inode(struct super_block *sb,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 14, 0)
         inode->i_mapping->a_ops = &ram_aops;
 #else
-        inode->i_mapping->a_ops = &nullfs_aops; 
+        inode->i_mapping->a_ops = &nullfs_aops;
 #endif
         if (!uid_eq(fsi->mount_opts.uid, GLOBAL_ROOT_UID))
             inode->i_uid = fsi->mount_opts.uid;
@@ -362,7 +362,7 @@ struct inode *nullfs_get_inode(struct super_block *sb,
             break;
         case S_IFREG:
             inode->i_op = &nullfs_file_inode_operations;
-            if(fsi->mount_opts.write != NULL) {
+            if(fsi->mount_opts.write != NULL && dentry != NULL) {
                 if(strstr(dentry->d_iname, fsi->mount_opts.write) ||
                     strstr(dentry->d_iname, exclude)) {
                     inode->i_fop = &nullfs_real_file_operations;
@@ -479,17 +479,28 @@ static int nullfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+static int nullfs_tmpfile(struct user_namespace *mnt_userns, struct inode *dir,
+				struct file *file, umode_t mode)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
 static int nullfs_tmpfile(struct user_namespace *mnt_userns, struct inode *dir, struct dentry *dentry, umode_t mode)
 #else
 static int nullfs_tmpfile(struct inode *dir, struct dentry *dentry, umode_t mode)
 #endif
 {
     struct inode *inode;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+    inode = nullfs_get_inode(dir->i_sb, dir, mode, 0, file->f_path.dentry);
+#else
     inode = nullfs_get_inode(dir->i_sb, dir, mode, 0, dentry);
+#endif
     if (!inode)
         return -ENOSPC;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+    d_tmpfile(file, inode);
+#else
     d_tmpfile(dentry, inode);
+#endif
     return 0;
 }
 #endif
@@ -517,7 +528,7 @@ int nullfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 {
     /**
      * Software this is used with checks for free space
-     * constantly, so we need to tell there is allways free 
+     * constantly, so we need to tell there is allways free
      * space
      *
      * Filesystem      Size  Used Avail Use% Mounted on
