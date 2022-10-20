@@ -1,3 +1,9 @@
+nullfsvfs (0.13) unstable; urgency=medium
+
+  * Adds support for kernel version 6.1, thanks Woody Suwalski
+
+ -- Michael Ablassmeier <abi@grinser.de>  Thu, 20 Oct 2022 20:54:13 +0200
+
 nullfsvfs (0.12) unstable; urgency=medium
 
   * Fix build on SLES based kernels, add #ifdef for RHEL_MAJOR.
