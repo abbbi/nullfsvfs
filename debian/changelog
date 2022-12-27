@@ -1,3 +1,9 @@
+nullfsvfs (0.14) unstable; urgency=medium
+
+  * Adds support for kernel version 6.2, thanks Woody Suwalski
+
+ -- Michael Ablassmeier <abi@grinser.de>  Tue, 27 Dec 2022 09:33:33 +0100
+
 nullfsvfs (0.13) unstable; urgency=medium
 
   * Adds support for kernel version 6.1, thanks Woody Suwalski
