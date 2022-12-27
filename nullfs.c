@@ -42,7 +42,7 @@
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE  0755
 #define NULLFS_SYSFS_MODE  0644
-#define NULLFS_VERSION "0.13"
+#define NULLFS_VERSION "0.14"
 
 MODULE_AUTHOR("Michael Ablassmeier");
 MODULE_LICENSE("GPL");
@@ -61,7 +61,10 @@ static const struct xattr_handler *nullfs_xattr_handlers[] = {
     &posix_acl_default_xattr_handler,
     NULL
 };
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 2, 0)
+static int nullfs_set_acl(struct user_namespace *mnt_userns,
+        struct dentry *dentry, struct posix_acl *acl, int type)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
 static int nullfs_set_acl(struct user_namespace *mnt_userns,
         struct inode *inode, struct posix_acl *acl, int type)
 #else
