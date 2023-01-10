@@ -92,11 +92,11 @@ To install the module for the running linux kernel use:
 Running `depmod` is mandatory. Now the module can be loaded via:
 
 ```
- modprobe  nullfs
+ # modprobe nullfs
 ``` 
 
-To automatically load filesystem module during boot time, create a configuration
-file suitable for your distribution, usually located in */etc/modules-load.d*
+To automatically load the module during system boot, create a configuration
+file suitable for your distribution (usually located in */etc/modules-load.d*):
 
 ```
  # echo nullfs > /etc/modules-load.d/nullfs.conf
@@ -120,9 +120,9 @@ none    /nullfs nullfs auto
 ## Usage
 ### Keeping file data
 
-There is the possiblity to exclude certain files from beeing sent into the void.
-For example if the file matching "fstab" should be kept in memory, one can mount
-nullfs with the "write=" option. 
+There is the possiblity to exclude certain files from beeing sent into the
+void.  If, for example, the file matching "fstab" should be kept in memory,
+mount nullfs with the "write=" option.
 
 ```
 # mount -t nullfs none /sinkhole/ -o write=fstab
