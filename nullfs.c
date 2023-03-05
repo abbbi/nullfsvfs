@@ -61,7 +61,10 @@ static const struct xattr_handler *nullfs_xattr_handlers[] = {
     &posix_acl_default_xattr_handler,
     NULL
 };
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 2, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+static int nullfs_set_acl(struct mnt_idmap *idmap,
+        struct dentry *dentry, struct posix_acl *acl, int type)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 2, 0)
 static int nullfs_set_acl(struct user_namespace *mnt_userns,
         struct dentry *dentry, struct posix_acl *acl, int type)
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
@@ -115,7 +118,12 @@ static struct kobject *exclude_kobj;
 /**
  * regular filesystem handlers, inode handling etc..
  **/
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+static int nullfs_getattr(struct mnt_idmap *idmap,
+        const struct path *path, struct kstat *stat, u32 request_mask, unsigned int flags)
+{
+		struct inode *inode = path->dentry->d_inode;
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
 static int nullfs_getattr(struct user_namespace *mnt_userns,
         const struct path *path, struct kstat *stat, u32 request_mask, unsigned int flags)
 {
@@ -134,7 +142,9 @@ static int nullfs_getattr(const struct path *path, struct kstat *stat,
 
 	unsigned long npages;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+	generic_fillattr(&nop_mnt_idmap, inode, stat);
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
 	generic_fillattr(&init_user_ns, inode, stat);
 #else
 	generic_fillattr(inode, stat);
@@ -337,7 +347,9 @@ struct inode *nullfs_get_inode(struct super_block *sb,
 
     if (inode) {
         inode->i_ino = get_next_ino();
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+        inode_init_owner(&nop_mnt_idmap, inode, dir, mode);
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
         inode_init_owner(&init_user_ns, inode, dir, mode);
 #else
         inode_init_owner(inode, dir, mode);
@@ -390,7 +402,10 @@ struct inode *nullfs_get_inode(struct super_block *sb,
     return inode;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+static int nullfs_mknod(struct mnt_idmap *idmap,
+        struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
 static int nullfs_mknod(struct user_namespace *mnt_userns,
         struct inode *dir, struct dentry *dentry, umode_t mode, dev_t dev)
 # else
@@ -421,7 +436,10 @@ static int nullfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, 
     return error;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+static int nullfs_mkdir(struct mnt_idmap *idmap,
+        struct inode * dir, struct dentry * dentry, umode_t mode)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
 static int nullfs_mkdir(struct user_namespace *mnt_userns,
         struct inode * dir, struct dentry * dentry, umode_t mode)
 #else
@@ -429,7 +447,9 @@ static int nullfs_mkdir(struct inode * dir, struct dentry * dentry, umode_t mode
 #endif
 {
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+    int retval = nullfs_mknod(&nop_mnt_idmap, dir, dentry, mode | S_IFDIR, 0);
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
     int retval = nullfs_mknod(&init_user_ns, dir, dentry, mode | S_IFDIR, 0);
 #else
     int retval = nullfs_mknod(dir, dentry, mode | S_IFDIR, 0);
@@ -440,7 +460,10 @@ static int nullfs_mkdir(struct inode * dir, struct dentry * dentry, umode_t mode
     return retval;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+static int nullfs_symlink(struct mnt_idmap *idmap,
+        struct inode * dir, struct dentry *dentry, const char * symname)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
 static int nullfs_symlink(struct user_namespace *mnt_userns,
         struct inode * dir, struct dentry *dentry, const char * symname)
 #else
@@ -468,13 +491,17 @@ static int nullfs_symlink(struct inode * dir, struct dentry *dentry, const char 
     return error;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
-static int nullfs_create(struct user_namespace *mnt_userns,struct inode *dir, struct dentry *dentry, umode_t mode, bool excl)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+static int nullfs_create(struct mnt_idmap *idmap, struct inode *dir, struct dentry *dentry, umode_t mode, bool excl)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+static int nullfs_create(struct user_namespace *mnt_userns, struct inode *dir, struct dentry *dentry, umode_t mode, bool excl)
 #else
 static int nullfs_create(struct inode *dir, struct dentry *dentry, umode_t mode, bool excl)
 #endif
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+    return nullfs_mknod(&nop_mnt_idmap, dir, dentry, mode | S_IFREG, 0);
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
     return nullfs_mknod(&init_user_ns, dir, dentry, mode | S_IFREG, 0);
 #else
     return nullfs_mknod(dir, dentry, mode | S_IFREG, 0);
@@ -482,7 +509,10 @@ static int nullfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+static int nullfs_tmpfile(struct mnt_idmap *idmap, struct inode *dir,
+				struct file *file, umode_t mode)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
 static int nullfs_tmpfile(struct user_namespace *mnt_userns, struct inode *dir,
 				struct file *file, umode_t mode)
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
