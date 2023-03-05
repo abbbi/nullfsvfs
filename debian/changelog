@@ -1,3 +1,9 @@
+nullfsvfs (0.15) unstable; urgency=medium
+
+  * Adds support for kernel version 6.3, thanks Woody Suwalski
+
+ -- Michael Ablassmeier <abi@debian.org>  Sun, 05 Mar 2023 18:23:08 +0100
+
 nullfsvfs (0.14) unstable; urgency=medium
 
   * Adds support for kernel version 6.2, thanks Woody Suwalski
