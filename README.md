@@ -138,7 +138,7 @@ Another option is using the sysfs interface to change the exclude string
 after the module has been loaded:
 
 ```
- # echo foo  > /sys/fs/nullfs/exclude 
+ # echo foo  > /sys/fs/nullfs/exclude
 ```
 
 Keep in mind that file data is kept in memory and no boundary checks are done,
