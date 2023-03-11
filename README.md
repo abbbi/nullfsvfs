@@ -11,7 +11,7 @@
     - [Keeping file data](#keeping-file-data)
     - [ACL](#acl)
     - [usecases](#usecases)
-    - [supported](#supported)
+    - [supported mount options](#supported-mount-options)
     - [todos/ideas](#todosideas)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -138,7 +138,7 @@ Another option is using the sysfs interface to change the exclude string
 after the module has been loaded:
 
 ```
- echo foo  > /sys/fs/nullfs/exclude 
+ # echo foo  > /sys/fs/nullfs/exclude 
 ```
 
 Keep in mind that file data is kept in memory and no boundary checks are done,
@@ -163,14 +163,14 @@ The module has been used for performance testing with redis, see:
 
 Please report usecases as regular issues!
 
-### supported
+### supported mount options
 
 The following mount options are supported:
 ```
  -o mode=      set permissions on mount directory ( mount .. -o mode=777 )
  -o uid=       set uid on mount directory ( mount .. -o uid=1000 )
  -o gid=       set gid on mount directory ( mount .. -o gid=1000 )
- 
+ -o write=fn   keep data for specific file ( mount .. -o write=fstab )
 ```
 
 ### todos/ideas
