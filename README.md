@@ -120,7 +120,7 @@ none    /nullfs nullfs auto
 ## Usage
 ### Keeping file data
 
-There is the possiblity to exclude certain files from beeing sent into the
+There is the possibility to exclude certain files from being sent into the
 void.  If, for example, the file matching "fstab" should be kept in memory,
 mount nullfs with the "write=" option.
 
@@ -142,7 +142,7 @@ after the module has been loaded:
 ```
 
 Keep in mind that file data is kept in memory and no boundary checks are done,
-so this might fill up your RAM in case you exclude big files from beeing
+so this might fill up your RAM in case you exclude big files from being
 nulled.
 
 ### ACL
