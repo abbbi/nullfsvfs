@@ -12,4 +12,4 @@ Architecture: any
 Depends: ${misc:Depends}
 Description: virtual file system that behaves like /dev/null
  Nullfsvfs is a virtual file system that can handle regular
- file operations like mkdir/rmdir/ln but wont store any data.
+ file operations like mkdir/rmdir/ln but won't store any data.

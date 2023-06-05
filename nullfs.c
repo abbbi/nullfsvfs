@@ -561,7 +561,7 @@ int nullfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 {
     /**
      * Software this is used with checks for free space
-     * constantly, so we need to tell there is allways free
+     * constantly, so we need to tell there is always free
      * space
      *
      * Filesystem      Size  Used Avail Use% Mounted on
