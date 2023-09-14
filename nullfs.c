@@ -57,8 +57,13 @@ MODULE_VERSION(NULLFS_VERSION);
  */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
 static const struct xattr_handler *nullfs_xattr_handlers[] = {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 5, 2)
+    &nop_posix_acl_access,
+    &nop_posix_acl_default,
+#else
     &posix_acl_access_xattr_handler,
     &posix_acl_default_xattr_handler,
+#endif
     NULL
 };
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
