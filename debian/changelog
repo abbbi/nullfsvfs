@@ -1,3 +1,9 @@
+nullfsvfs (0.16) unstable; urgency=medium
+
+  * Fix build on opensuse thumbleweed (kernel version 6.5.2) #20
+
+ -- Michael Ablassmeier <abi@debian.org>  Thu, 14 Sep 2023 16:22:39 +0200
+
 nullfsvfs (0.15) unstable; urgency=medium
 
   * Adds support for kernel version 6.3, thanks Woody Suwalski
