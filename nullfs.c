@@ -147,7 +147,9 @@ static int nullfs_getattr(const struct path *path, struct kstat *stat,
 
 	unsigned long npages;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
+	generic_fillattr(&nop_mnt_idmap, request_mask, inode, stat);
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
 	generic_fillattr(&nop_mnt_idmap, inode, stat);
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
 	generic_fillattr(&init_user_ns, inode, stat);
@@ -371,7 +373,13 @@ struct inode *nullfs_get_inode(struct super_block *sb,
         mapping_set_gfp_mask(inode->i_mapping, GFP_HIGHUSER);
         mapping_set_unevictable(inode->i_mapping);
 #ifndef CURRENT_TIME
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 7, 0)
+        simple_inode_init_ts(inode);
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
+        inode->i_atime = inode->i_mtime = inode_set_ctime_current(inode);
+#else
         inode->i_atime = inode->i_mtime = inode->i_ctime = current_time(inode);
+#endif
 #else
         inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
 #endif
@@ -433,7 +441,13 @@ static int nullfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, 
         dget(dentry);   /* Extra count - pin the dentry in core */
         error = 0;
 #ifndef CURRENT_TIME
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 7, 0)
+        inode_set_mtime_to_ts(dir, inode_set_ctime_current(dir));
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
+        dir->i_mtime = inode_set_ctime_current(dir);
+#else
         dir->i_mtime = dir->i_ctime = current_time(dir);
+#endif
 #else
         dir->i_mtime = dir->i_ctime = CURRENT_TIME;
 #endif
@@ -486,7 +500,13 @@ static int nullfs_symlink(struct inode * dir, struct dentry *dentry, const char 
             d_instantiate(dentry, inode);
             dget(dentry);
 #ifndef CURRENT_TIME
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 7, 0)
+        inode_set_mtime_to_ts(dir, inode_set_ctime_current(dir));
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
+            dir->i_mtime = inode_set_ctime_current(dir);
+#else
             dir->i_mtime = dir->i_ctime = current_time(dir);
+#endif
 #else
             dir->i_mtime = dir->i_ctime = CURRENT_TIME;
 #endif
