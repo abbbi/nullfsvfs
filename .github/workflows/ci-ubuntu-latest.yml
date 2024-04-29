@@ -11,7 +11,9 @@ jobs:
     - name: apt update
       run: sudo apt-get update
     - name: Install build-essential and devscripts
-      run: sudo apt-get install build-essential devscripts equivs acl
+      run: sudo apt-get install build-essential devscripts equivs acl codespell
+    - name: Run codespell
+      run: codespell -L filp,iput .
     - name: Install Kernel Build Dependencies
       run: sudo mk-build-deps --install debian/control
     - name: Remove dependency package
@@ -35,8 +37,8 @@ jobs:
         sudo setfacl -m d:u:root:r /mnt/acl_dir
         sudo setfacl -m u:root:r /mnt/acl_file
         sudo setfacl -m u:root:r /mnt/nod
-    - name: Test O_DIRECT
-      run: sudo dd if=/dev/zero of=/mnt/direct bs=1M count=1953 oflag=direct
+    - name: Test file
+      run: sudo dd if=/dev/zero of=/mnt/direct bs=1M count=1953
     - name: Test filesize
       run: sudo stat --printf '%s' /mnt/direct | grep 2047868928
     - name: Umount nullfs
