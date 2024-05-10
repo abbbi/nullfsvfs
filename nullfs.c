@@ -533,35 +533,17 @@ static int nullfs_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 #endif
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
-static int nullfs_tmpfile(struct mnt_idmap *idmap, struct inode *dir,
-				struct file *file, umode_t mode)
-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
+
 static int nullfs_tmpfile(struct user_namespace *mnt_userns, struct inode *dir,
-				struct file *file, umode_t mode)
-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
-static int nullfs_tmpfile(struct user_namespace *mnt_userns, struct inode *dir, struct dentry *dentry, umode_t mode)
-#else
-static int nullfs_tmpfile(struct inode *dir, struct dentry *dentry, umode_t mode)
-#endif
+                               struct file *file, umode_t mode)
 {
     struct inode *inode;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
     inode = nullfs_get_inode(dir->i_sb, dir, mode, 0, file->f_path.dentry);
-#else
-    inode = nullfs_get_inode(dir->i_sb, dir, mode, 0, dentry);
-#endif
     if (!inode)
         return -ENOSPC;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
     d_tmpfile(file, inode);
-#else
-    d_tmpfile(dentry, inode);
-#endif
     return 0;
 }
-#endif
 
 static const struct inode_operations nullfs_dir_inode_operations = {
     .create     = nullfs_create,
