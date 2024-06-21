@@ -112,8 +112,8 @@ none    /nullfs nullfs auto
 ### debian package
 
 ```
- # apt-get install debhelper dkms
- # dpkg-buildpackage -r fakeroot
+ # apt-get install debhelper dkms dh-dkms
+ # dpkg-buildpackage -uc -us -rfakeroot
  # dpkg -i ../nullfsvfs_<version>_amd64.deb
 ```
 
