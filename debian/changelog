@@ -1,3 +1,9 @@
+nullfsvfs (0.18) unstable; urgency=medium
+
+  * Support for kernel versions 6.15
+
+ -- Michael Ablassmeier <abi@debian.org>  Wed, 02 Apr 2025 08:48:43 +0200
+
 nullfsvfs (0.17) unstable; urgency=medium
 
   * Support for kernel versions 6.6/6.7
