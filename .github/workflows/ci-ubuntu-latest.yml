@@ -11,7 +11,7 @@ jobs:
     - name: apt update
       run: sudo apt-get update
     - name: Install build-essential and devscripts
-      run: sudo apt-get install build-essential devscripts equivs acl codespell
+      run: sudo apt-get install build-essential devscripts equivs acl codespell dh-dkms
     - name: Run codespell
       run: codespell -L filp,iput .
     - name: Install Kernel Build Dependencies
