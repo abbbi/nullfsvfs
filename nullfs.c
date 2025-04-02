@@ -48,6 +48,10 @@ MODULE_AUTHOR("Michael Ablassmeier");
 MODULE_LICENSE("GPL");
 MODULE_VERSION(NULLFS_VERSION);
 
+struct inode *nullfs_get_inode(struct super_block*, const struct inode*, umode_t, dev_t, struct dentry*);
+int nullfs_statfs(struct dentry*, struct kstatfs*);
+int nullfs_fill_super(struct super_block*, void*, int);
+
 /*
  * POSIX ACL
  * setfacl is possible, but acls are not stored, of course
