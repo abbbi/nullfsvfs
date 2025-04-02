@@ -105,7 +105,7 @@ static ssize_t exclude_store(struct kobject *kobj, struct kobj_attribute *attr,
     if (p)
         *p = '\0';
     strncpy(exclude, buf, sizeof(exclude));
-    printk(KERN_INFO "nullfs: will keep data for files matching: [%s]",
+    printk(KERN_INFO "nullfs: will keep data for files matching: [%s]\n",
         exclude);
 	return count;
 }
@@ -327,7 +327,7 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
         }
     }
     if(opts->write != NULL)
-        printk(KERN_INFO "nullfs: will keep data for files matching: [%s]",
+        printk(KERN_INFO "nullfs: will keep data for files matching: [%s]\n",
             opts->write);
     return 0;
 }
@@ -406,6 +406,8 @@ struct inode *nullfs_get_inode(struct super_block *sb,
         case S_IFDIR:
             inode->i_op = &nullfs_dir_inode_operations;
             inode->i_fop = &simple_dir_operations;
+
+            /* directory inodes start off with i_nlink == 2 (for "." entry) */
             inc_nlink(inode);
             break;
         case S_IFLNK:
@@ -459,7 +461,10 @@ static int nullfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, 
     return error;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+static struct dentry *nullfs_mkdir(struct mnt_idmap *idmap,
+        struct inode * dir, struct dentry * dentry, umode_t mode)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
 static int nullfs_mkdir(struct mnt_idmap *idmap,
         struct inode * dir, struct dentry * dentry, umode_t mode)
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
@@ -480,7 +485,12 @@ static int nullfs_mkdir(struct inode * dir, struct dentry * dentry, umode_t mode
 
     if (!retval)
         inc_nlink(dir);
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+    return ERR_PTR(retval);
+#else
     return retval;
+#endif
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
@@ -505,7 +515,7 @@ static int nullfs_symlink(struct inode * dir, struct dentry *dentry, const char 
             dget(dentry);
 #ifndef CURRENT_TIME
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 7, 0)
-        inode_set_mtime_to_ts(dir, inode_set_ctime_current(dir));
+            inode_set_mtime_to_ts(dir, inode_set_ctime_current(dir));
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
             dir->i_mtime = inode_set_ctime_current(dir);
 #else
@@ -563,7 +573,7 @@ static int nullfs_tmpfile(struct inode *dir, struct dentry *dentry, umode_t mode
 #else
     d_tmpfile(dentry, inode);
 #endif
-    return 0;
+    return finish_open_simple(file, 0);
 }
 #endif
 
@@ -679,7 +689,7 @@ static int __init nullfs_init(void)
         kobject_put(exclude_kobj);
 
     register_filesystem(&nullfs_type);
-    printk(KERN_INFO "nullfs: version [%s] initialized", NULLFS_VERSION);
+    printk(KERN_INFO "nullfs: version [%s] initialized\n", NULLFS_VERSION);
     return 0;
 }
 
