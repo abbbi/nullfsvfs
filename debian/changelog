@@ -1,3 +1,9 @@
+nullfsvfs (0.19) unstable; urgency=medium
+
+  * Fix build on older kernels (= 4.18)
+
+ -- Michael Ablassmeier <abi@debian.org>  Wed, 11 Jun 2025 10:55:50 +0200
+
 nullfsvfs (0.18) unstable; urgency=medium
 
   * Support for kernel versions 6.15
