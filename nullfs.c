@@ -570,10 +570,11 @@ static int nullfs_tmpfile(struct inode *dir, struct dentry *dentry, umode_t mode
         return -ENOSPC;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
     d_tmpfile(file, inode);
+    return finish_open_simple(file, 0);
 #else
     d_tmpfile(dentry, inode);
+    return 0;
 #endif
-    return finish_open_simple(file, 0);
 }
 #endif
 
