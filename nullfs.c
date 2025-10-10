@@ -618,7 +618,11 @@ int nullfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 
 static const struct super_operations nullfs_ops = {
     .statfs       = nullfs_statfs,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 18, 0)
+    .drop_inode   = inode_just_drop,
+#else
     .drop_inode   = generic_delete_inode,
+#endif
     .show_options = nullfs_show_options
 };
 
@@ -665,10 +669,38 @@ static void nullfs_kill_sb(struct super_block *sb)
     kill_litter_super(sb);
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 18, 0)
+extern struct dentry *nullfs_mount_nodev(struct file_system_type *,
+       int, void *, int (*fill_super)(struct super_block *, void *, int));
+
+struct dentry *nullfs_mount_nodev(struct file_system_type *fs_type,
+       int flags, void *data,
+       int (*fill_super)(struct super_block *, void *, int))
+{
+       int error;
+       struct super_block *s = sget(fs_type, NULL, set_anon_super, flags, NULL);
+
+       if (IS_ERR(s))
+               return ERR_CAST(s);
+
+       error = fill_super(s, data, flags & SB_SILENT ? 1 : 0);
+       if (error) {
+               deactivate_locked_super(s);
+               return ERR_PTR(error);
+       }
+       s->s_flags |= SB_ACTIVE;
+       return dget(s->s_root);
+}
+#endif
+
 static struct dentry * nullfs_get_super(struct file_system_type *fst,
         int flags, const char *devname, void *data)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 18, 0)
+    return nullfs_mount_nodev(fst, flags, data, nullfs_fill_super);
+#else
     return mount_nodev(fst, flags, data, nullfs_fill_super);
+#endif
 }
 
 static struct file_system_type nullfs_type = {
