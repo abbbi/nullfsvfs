@@ -1,8 +1,14 @@
+nullfsvfs (0.21) unstable; urgency=medium
+
+  * Add header MODULE_DESCRIPTION to stop modpost warning.
+
+ -- Michael Ablassmeier <abi@debian.org>  Thu, 16 Oct 2025 12:14:51 +0200
+
 nullfsvfs (0.20) unstable; urgency=medium
 
   * Fix build on kernel versions 6.18
 
- -- Michael Ablassmeier <abi@cefix.cli.support.hk.sep.de>  Mon, 13 Oct 2025 14:27:17 +0200
+ -- Michael Ablassmeier <abi@debian.org>  Mon, 13 Oct 2025 14:27:17 +0200
 
 nullfsvfs (0.19) unstable; urgency=medium
 
