@@ -667,7 +667,11 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
 static void nullfs_kill_sb(struct super_block *sb)
 {
     kfree(sb->s_fs_info);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 19, 0)
+    kill_anon_super(sb);
+#else
     kill_litter_super(sb);
+#endif
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 18, 0)
