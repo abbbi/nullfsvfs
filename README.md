@@ -99,7 +99,7 @@ To automatically load the module during system boot, create a configuration
 file suitable for your distribution (usually located in */etc/modules-load.d*):
 
 ```
- # echo nullfsvfs > /etc/modules-load.d/nullfs.conf
+ # echo nullfsvfs > /etc/modules-load.d/nullfsvfs.conf
 ```
 
 Example entry for `/etc/fstab`, mounting the filesystem to `/nullfs`:
