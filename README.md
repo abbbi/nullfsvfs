@@ -39,9 +39,9 @@ make[1]: Entering directory '/usr/src/linux-headers-4.18.5'
   MODPOST 1 modules
 make[1]: Leaving directory '/usr/src/linux-headers-4.18.5'
 
-# insmod nullfs.ko 
+# insmod nullfsvfs.ko
 # mkdir /sinkhole
-# mount -t nullfs none /sinkhole/
+# mount -t nullfsvfs none /sinkhole/
 # mkdir /sinkhole/testdir
 # touch /sinkhole/testdir/myfile
 # echo foobar > /sinkhole/testdir/myfile
@@ -85,28 +85,28 @@ makes it behave like reading from /dev/zero:
 To install the module for the running linux kernel use:
 
 ```
- # make -C /lib/modules/$(uname -r)/build M=$PWD modules_install INSTALL_MOD_DIR=kernel/fs/nullfs
+ # make -C /lib/modules/$(uname -r)/build M=$PWD modules_install INSTALL_MOD_DIR=kernel/fs/nullfsvfs
  # depmod
 ```
 
 Running `depmod` is mandatory. Now the module can be loaded via:
 
 ```
- # modprobe nullfs
+ # modprobe nullfsvfs
 ``` 
 
 To automatically load the module during system boot, create a configuration
 file suitable for your distribution (usually located in */etc/modules-load.d*):
 
 ```
- # echo nullfs > /etc/modules-load.d/nullfs.conf
+ # echo nullfsvfs > /etc/modules-load.d/nullfs.conf
 ```
 
 Example entry for `/etc/fstab`, mounting the filesystem to `/nullfs`:
 
 
 ```
-none    /nullfs nullfs auto
+none    /nullfs nullfsvfs auto
 ```
 
 ### debian package
@@ -125,7 +125,7 @@ void.  If, for example, the file matching "fstab" should be kept in memory,
 mount nullfs with the "write=" option.
 
 ```
-# mount -t nullfs none /sinkhole/ -o write=fstab
+# mount -t nullfsvfs none /sinkhole/ -o write=fstab
 # cp /etc/fstab /sinkhole/
 # wc -l /sinkhole/fstab 
 14 /sinkhole/fstab
@@ -138,7 +138,7 @@ Another option is using the sysfs interface to change the exclude string
 after the module has been loaded:
 
 ```
- # echo foo  > /sys/fs/nullfs/exclude
+ # echo foo  > /sys/fs/nullfsvfs/exclude
 ```
 
 Keep in mind that file data is kept in memory and no boundary checks are done,

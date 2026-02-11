@@ -1,3 +1,10 @@
+nullfsvfs (0.23) unstable; urgency=medium
+
+  * Rename to nullfsvfs in order to not name clash with newly
+  introduced nullfs filesystem in the linux kernel 7
+
+ -- Michael Ablassmeier <abi@debian.org>  Wed, 11 Feb 2026 13:22:07 +0100
+
 nullfsvfs (0.22) unstable; urgency=medium
 
   *  Fix build on kernel versions 6.19

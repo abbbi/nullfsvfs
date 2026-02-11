@@ -1,4 +1,4 @@
-obj-m := nullfs.o
+obj-m := nullfsvfs.o
 
 all: ko
 ko:

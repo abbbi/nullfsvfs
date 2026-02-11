@@ -42,7 +42,7 @@
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE  0755
 #define NULLFS_SYSFS_MODE  0644
-#define NULLFS_VERSION "0.22"
+#define NULLFS_VERSION "0.23"
 
 MODULE_AUTHOR("Michael Ablassmeier");
 MODULE_LICENSE("GPL");
@@ -106,7 +106,7 @@ static ssize_t exclude_store(struct kobject *kobj, struct kobj_attribute *attr,
     if (p)
         *p = '\0';
     strncpy(exclude, buf, sizeof(exclude));
-    printk(KERN_INFO "nullfs: will keep data for files matching: [%s]\n",
+    printk(KERN_INFO "nullfsvfs: will keep data for files matching: [%s]\n",
         exclude);
 	return count;
 }
@@ -328,7 +328,7 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
         }
     }
     if(opts->write != NULL)
-        printk(KERN_INFO "nullfs: will keep data for files matching: [%s]\n",
+        printk(KERN_INFO "nullfsvfs: will keep data for files matching: [%s]\n",
             opts->write);
     return 0;
 }
@@ -709,7 +709,7 @@ static struct dentry * nullfs_get_super(struct file_system_type *fst,
 }
 
 static struct file_system_type nullfs_type = {
-    .name       = "nullfs",
+    .name       = "nullfsvfs",
     .mount      = nullfs_get_super,
     .kill_sb    = nullfs_kill_sb,
     .owner      = THIS_MODULE
@@ -718,7 +718,7 @@ static struct file_system_type nullfs_type = {
 static int __init nullfs_init(void)
 {
     int retval;
-    exclude_kobj = kobject_create_and_add("nullfs", fs_kobj);
+    exclude_kobj = kobject_create_and_add("nullfsvfs", fs_kobj);
     if (!exclude_kobj)
         return -ENOMEM;
 
@@ -727,7 +727,7 @@ static int __init nullfs_init(void)
         kobject_put(exclude_kobj);
 
     register_filesystem(&nullfs_type);
-    printk(KERN_INFO "nullfs: version [%s] initialized\n", NULLFS_VERSION);
+    printk(KERN_INFO "nullfsvfs: version [%s] initialized\n", NULLFS_VERSION);
     return 0;
 }
 
