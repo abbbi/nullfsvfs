@@ -23,9 +23,9 @@ jobs:
     - name: Install generated Package
       run: sudo dpkg -i ../nullfsvfs_*_amd64.deb
     - name: Modprobe kernel module
-      run: sudo modprobe nullfs
+      run: sudo modprobe nullfsvfs
     - name: Mount nullfs
-      run: sudo mount -t nullfs none /mnt
+      run: sudo mount -t nullfsvfs none /mnt
     - name: Test filecopy
       run: sudo cp -r /etc/ /mnt/
     - name: Test mknod
@@ -41,5 +41,5 @@ jobs:
       run: sudo dd if=/dev/zero of=/mnt/direct bs=1M count=1953
     - name: Test filesize
       run: sudo stat --printf '%s' /mnt/direct | grep 2047868928
-    - name: Umount nullfs
+    - name: Umount nullfsvfs
       run: sudo umount /mnt
