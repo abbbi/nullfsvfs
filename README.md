@@ -3,7 +3,7 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [nullfs](#nullfs)
+- [nullfsvfs](#nullfsvfs)
   - [installation](#installation)
     - [manual installation](#manual-installation)
     - [debian package](#debian-package)
@@ -16,12 +16,12 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# nullfs
+# nullfsvfs
 A virtual file system that behaves like /dev/null
 
 It can handle regular file operations like mkdir/rmdir/ln but writing to files
-does not store any data. The file size is however saved, reading from the
-files behaves like reading from /dev/zero.
+does not store any data. The file size is however saved, reading from the files
+behaves like reading from /dev/zero.
 
 Writing and reading is basically an NOOP, so it can be used for performance
 testing with applications that require directory structures.  Implemented as
