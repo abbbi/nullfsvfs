@@ -1,3 +1,9 @@
+nullfsvfs (0.24) unstable; urgency=medium
+
+  * Fix warnings on linux kernel >= 6.19
+
+ -- Michael Ablassmeier <abi@debian.org>  Tue, 24 Feb 2026 10:22:09 +0100
+
 nullfsvfs (0.23) unstable; urgency=medium
 
   * Rename to nullfsvfs in order to not name clash with newly
