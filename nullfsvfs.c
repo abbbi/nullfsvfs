@@ -444,8 +444,12 @@ static int nullfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode, 
         if(mode & S_IFDIR) {
             inode->i_size = PAGE_SIZE;
         }
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 19, 0)
+        d_make_persistent(dentry, inode);
+#else
         d_instantiate(dentry, inode);
         dget(dentry);   /* Extra count - pin the dentry in core */
+#endif
         error = 0;
 #ifndef CURRENT_TIME
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 7, 0)
@@ -512,8 +516,13 @@ static int nullfs_symlink(struct inode * dir, struct dentry *dentry, const char 
         int l = strlen(symname)+1;
         error = page_symlink(inode, symname, l);
         if (!error) {
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 19, 0)
+            d_make_persistent(dentry, inode);
+#else
             d_instantiate(dentry, inode);
             dget(dentry);
+#endif
 #ifndef CURRENT_TIME
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 7, 0)
             inode_set_mtime_to_ts(dir, inode_set_ctime_current(dir));
