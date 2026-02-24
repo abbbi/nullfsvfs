@@ -119,7 +119,7 @@ static int nullfs_parse_param(struct fs_context *fc,
     fsi->mount_opts.gid = result.gid;
     break;
   case Opt_write:
-    memcpy(&fsi->mount_opts.write, param->string, strlen(param->string));
+    fsi->mount_opts.write = param->string;
     strncpy(exclude, param->string, strlen(param->string));
     break;
   }
