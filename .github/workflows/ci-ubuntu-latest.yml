@@ -11,9 +11,11 @@ jobs:
     - name: apt update
       run: sudo apt-get update
     - name: Install build-essential and devscripts
-      run: sudo apt-get install build-essential devscripts equivs acl codespell dh-dkms
+      run: sudo apt-get install build-essential devscripts equivs acl codespell dh-dkms clang-format
     - name: Run codespell
       run: codespell -L filp,iput .
+    - name: Run clang-format
+      run: clang-format --dry-run --fail-on-incomplete-format nullfsvfs.c
     - name: Install Kernel Build Dependencies
       run: sudo mk-build-deps --install debian/control
     - name: Remove dependency package
