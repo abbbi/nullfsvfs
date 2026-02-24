@@ -140,6 +140,7 @@ int nullfs_init_fs_context(struct fs_context *fc) {
   if (!fsi)
     return -ENOMEM;
 
+  fsi->mount_opts.mode = NULLFS_DEFAULT_MODE;
   fc->s_fs_info = fsi;
   fc->ops = &nullfs_context_ops;
   return 0;
