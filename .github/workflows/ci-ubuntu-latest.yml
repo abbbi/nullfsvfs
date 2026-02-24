@@ -15,7 +15,7 @@ jobs:
     - name: Run codespell
       run: codespell -L filp,iput .
     - name: Run clang-format
-      run: clang-format --dry-run --fail-on-incomplete-format nullfsvfs.c
+      run: clang-format --dry-run --Werror nullfsvfs.c
     - name: Install Kernel Build Dependencies
       run: sudo mk-build-deps --install debian/control
     - name: Remove dependency package
