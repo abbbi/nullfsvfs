@@ -117,7 +117,7 @@ static int nullfs_parse_param(struct fs_context *fc, struct fs_parameter *param)
     switch (opt) {
         case Opt_mode:
             fsi->mount_opts.mode = result.uint_32 & S_IALLUGO;
-	break;
+	    break;
         case Opt_uid:
             fsi->mount_opts.uid = result.uid;
         break;
