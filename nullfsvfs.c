@@ -140,9 +140,6 @@ int nullfs_init_fs_context(struct fs_context *fc) {
   if (!fsi)
     return -ENOMEM;
 
-  fsi->mount_opts.mode = NULLFS_DEFAULT_MODE;
-  fsi->mount_opts.uid = current_uid();
-  fsi->mount_opts.gid = current_gid();
   fc->s_fs_info = fsi;
   fc->ops = &nullfs_context_ops;
   return 0;
@@ -719,14 +716,17 @@ static int nullfs_fill_super(struct super_block *sb, struct fs_context *fc)
 int nullfs_fill_super(struct super_block *sb, void *data, int silent)
 #endif
 {
-  struct nullfs_fs_info *fsi;
   struct inode *inode;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(7, 0, 0)
-  int err;
-#endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(7, 0, 0)
+  struct nullfs_fs_info *fsi;
+  int err;
   fsi = kzalloc(sizeof(struct nullfs_fs_info), GFP_KERNEL);
   sb->s_fs_info = fsi;
+# else
+ struct nullfs_fs_info *fsi = sb->s_fs_info;
+#endif
+
   if (!fsi)
     return -ENOMEM;
 
@@ -742,13 +742,20 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
   sb->s_magic = NULLFS_MAGIC;
   sb->s_op = &nullfs_ops;
   sb->s_time_gran = 1;
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
   sb->s_xattr = nullfs_xattr_handlers;
   sb->s_flags |= SB_POSIXACL;
 #endif
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
   inode =
       nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0, sb->s_root);
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
+  inode =
+      nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0);
+#endif
+
   sb->s_root = d_make_root(inode);
   if (!sb->s_root)
     return -ENOMEM;
