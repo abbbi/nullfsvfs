@@ -724,8 +724,8 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
   int err;
   fsi = kzalloc(sizeof(struct nullfs_fs_info), GFP_KERNEL);
   sb->s_fs_info = fsi;
-# else
- struct nullfs_fs_info *fsi = sb->s_fs_info;
+#else
+  struct nullfs_fs_info *fsi = sb->s_fs_info;
 #endif
 
   if (!fsi)
@@ -753,8 +753,7 @@ int nullfs_fill_super(struct super_block *sb, void *data, int silent)
   inode =
       nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0, sb->s_root);
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
-  inode =
-      nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0);
+  inode = nullfs_get_inode(sb, NULL, S_IFDIR | fsi->mount_opts.mode, 0);
 #endif
 
   sb->s_root = d_make_root(inode);
