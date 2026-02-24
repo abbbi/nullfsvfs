@@ -39,6 +39,11 @@
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
+#include <linux/fs_context.h>
+#include <linux/fs_parser.h>
+#endif
+
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE  0755
 #define NULLFS_SYSFS_MODE  0644
@@ -49,9 +54,111 @@ MODULE_LICENSE("GPL");
 MODULE_VERSION(NULLFS_VERSION);
 MODULE_DESCRIPTION("NULLFS VFS test file system");
 
+static char exclude[100] = "\0";
+
+struct nullfs_mount_opts {
+    char *write;
+    umode_t mode;
+    kuid_t uid;
+    kgid_t gid;
+};
+
+struct nullfs_fs_info {
+    struct nullfs_mount_opts mount_opts;
+};
+
 struct inode *nullfs_get_inode(struct super_block*, const struct inode*, umode_t, dev_t, struct dentry*);
 int nullfs_statfs(struct dentry*, struct kstatfs*);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
+static int nullfs_fill_super(struct super_block *sb, struct fs_context *fc);
+int nullfs_init_fs_context(struct fs_context *fc);
+static int nullfs_get_tree(struct fs_context *fc)
+{
+    return get_tree_single(fc, nullfs_fill_super);
+}
+
+
+static void nullfs_free_fc(struct fs_context *fc)
+{
+    kfree(fc->s_fs_info);
+}
+
+enum nullfs_param {
+    Opt_mode,
+    Opt_uid,
+    Opt_gid,
+    Opt_write,
+};
+
+const struct fs_parameter_spec nullfs_fs_parameters[] = {
+    fsparam_u32oct("mode",  Opt_mode),
+    fsparam_uid("uid",  Opt_uid),
+    fsparam_gid("gid",  Opt_gid),
+    fsparam_string("write",  Opt_write),
+    {}
+};
+
+static int nullfs_parse_param(struct fs_context *fc, struct fs_parameter *param)
+{
+    struct fs_parse_result result;
+    struct nullfs_fs_info *fsi = fc->s_fs_info;
+    int opt;
+
+    opt = fs_parse(fc, nullfs_fs_parameters, param, &result);
+    if (opt == -ENOPARAM) {
+        opt = vfs_parse_fs_param_source(fc, param);
+        if (opt != -ENOPARAM)
+           return opt;
+      return 0;
+    }
+    if (opt < 0)
+        return opt;
+
+    switch (opt) {
+        case Opt_mode:
+            fsi->mount_opts.mode = result.uint_32 & S_IALLUGO;
+	break;
+        case Opt_uid:
+            fsi->mount_opts.uid = result.uid;
+        break;
+        case Opt_gid:
+            fsi->mount_opts.gid = result.gid;
+        break;
+        case Opt_write:
+            memcpy(&fsi->mount_opts.write, param->string, strlen(param->string));
+            strncpy(exclude, param->string, strlen(param->string));
+        break;
+    }
+
+    return 0;
+}
+
+
+static const struct fs_context_operations nullfs_context_ops = {
+    .free       = nullfs_free_fc,
+    .parse_param    = nullfs_parse_param,
+    .get_tree   = nullfs_get_tree,
+};
+
+int nullfs_init_fs_context(struct fs_context *fc)
+{
+    struct nullfs_fs_info *fsi;
+
+    fsi = kzalloc_obj(*fsi);
+    if (!fsi)
+        return -ENOMEM;
+
+    fsi->mount_opts.mode = NULLFS_DEFAULT_MODE;
+    fsi->mount_opts.uid = current_uid();
+    fsi->mount_opts.gid = current_gid();
+    fc->s_fs_info = fsi;
+    fc->ops = &nullfs_context_ops;
+    return 0;
+}
+
+#else
 int nullfs_fill_super(struct super_block*, void*, int);
+#endif
 
 /*
  * POSIX ACL
@@ -91,7 +198,6 @@ static int nullfs_set_acl(struct inode *inode, struct posix_acl *acl, int type)
 /*
  * sysfs handlers
  */
-static char exclude[100] = "\0";
 static ssize_t exclude_show(struct kobject *kobj, struct kobj_attribute *attr,
 			char *buf)
 {
@@ -251,17 +357,7 @@ static const struct address_space_operations nullfs_aops = {
 static const struct inode_operations nullfs_dir_inode_operations;
 static const struct super_operations nullfs_ops;
 
-struct nullfs_mount_opts {
-    char *write;
-    umode_t mode;
-    kuid_t uid;
-    kgid_t gid;
-};
-
-struct nullfs_fs_info {
-    struct nullfs_mount_opts mount_opts;
-};
-
+#if LINUX_VERSION_CODE < KERNEL_VERSION(7, 0, 0)
 enum {
     Opt_write,
     Opt_mode,
@@ -332,6 +428,7 @@ static int nullfs_parse_options(char *data, struct nullfs_mount_opts *opts)
             opts->write);
     return 0;
 }
+#endif
 
 static int nullfs_show_options(struct seq_file *m, struct dentry *root)
 {
@@ -636,20 +733,28 @@ static const struct super_operations nullfs_ops = {
     .show_options = nullfs_show_options
 };
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
+static int nullfs_fill_super(struct super_block *sb, struct fs_context *fc)
+# else
 int nullfs_fill_super(struct super_block *sb, void *data, int silent)
+#endif
 {
     struct nullfs_fs_info *fsi;
     struct inode *inode;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(7, 0, 0)
     int err;
+#endif
 
     fsi = kzalloc(sizeof(struct nullfs_fs_info), GFP_KERNEL);
     sb->s_fs_info = fsi;
     if (!fsi)
         return -ENOMEM;
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(7, 0, 0)
     err = nullfs_parse_options(data, &fsi->mount_opts);
     if(err)
         return err;
+#endif
 
     sb->s_maxbytes       = MAX_LFS_FILESIZE;
     sb->s_blocksize      = PAGE_SIZE;
@@ -707,6 +812,7 @@ struct dentry *nullfs_mount_nodev(struct file_system_type *fs_type,
 }
 #endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(7, 0, 0)
 static struct dentry * nullfs_get_super(struct file_system_type *fst,
         int flags, const char *devname, void *data)
 {
@@ -716,10 +822,17 @@ static struct dentry * nullfs_get_super(struct file_system_type *fst,
     return mount_nodev(fst, flags, data, nullfs_fill_super);
 #endif
 }
+#endif
+
 
 static struct file_system_type nullfs_type = {
     .name       = "nullfsvfs",
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
+    .init_fs_context = nullfs_init_fs_context,
+    .parameters = nullfs_fs_parameters,
+#else
     .mount      = nullfs_get_super,
+#endif
     .kill_sb    = nullfs_kill_sb,
     .owner      = THIS_MODULE
 };
