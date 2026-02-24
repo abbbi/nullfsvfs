@@ -1,6 +1,5 @@
 /*
- * Nullfs.
- *
+ *   nullfsvfs.
  *
  *   Copyright (C) 2018  Michael Ablassmeier <abi@grinser.de>
  *
@@ -47,7 +46,7 @@
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE 0755
 #define NULLFS_SYSFS_MODE 0644
-#define NULLFS_VERSION "0.24"
+#define NULLFS_VERSION "0.25"
 
 MODULE_AUTHOR("Michael Ablassmeier");
 MODULE_LICENSE("GPL");
