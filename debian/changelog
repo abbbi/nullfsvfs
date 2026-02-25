@@ -1,3 +1,9 @@
+nullfsvfs (0.25) unstable; urgency=medium
+
+  * Fix build on kernel versions 7.0-rc1
+
+ -- Michael Ablassmeier <abi@debian.org>  Wed, 25 Feb 2026 08:33:39 +0100
+
 nullfsvfs (0.24) unstable; urgency=medium
 
   * Fix warnings on linux kernel >= 6.19
