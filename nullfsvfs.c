@@ -23,6 +23,7 @@
  * testing etc..
  */
 #include <linux/fs.h>
+#include <linux/fs_struct.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/kobject.h>
@@ -492,6 +493,10 @@ struct inode *nullfs_get_inode(struct super_block *sb, const struct inode *dir,
   return inode;
 }
 
+static inline umode_t nullfs_apply_umask(umode_t mode) {
+  return (mode & S_IFMT) | ((mode & S_IALLUGO) & ~current_umask());
+}
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
 static int nullfs_mknod(struct mnt_idmap *idmap, struct inode *dir,
                         struct dentry *dentry, umode_t mode, dev_t dev)
@@ -506,7 +511,8 @@ static int nullfs_mknod(struct inode *dir, struct dentry *dentry, umode_t mode,
   struct inode *inode;
   int error = -ENOSPC;
 
-  inode = nullfs_get_inode(dir->i_sb, dir, mode, dev, dentry);
+  umode_t masked = nullfs_apply_umask(mode);
+  inode = nullfs_get_inode(dir->i_sb, dir, masked, dev, dentry);
 
   if (inode) {
     /**
@@ -647,11 +653,12 @@ static int nullfs_tmpfile(struct inode *dir, struct dentry *dentry,
                           umode_t mode)
 #endif
 {
+  umode_t masked = nullfs_apply_umask(mode);
   struct inode *inode;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0)
-  inode = nullfs_get_inode(dir->i_sb, dir, mode, 0, file->f_path.dentry);
+  inode = nullfs_get_inode(dir->i_sb, dir, masked, 0, file->f_path.dentry);
 #else
-  inode = nullfs_get_inode(dir->i_sb, dir, mode, 0, dentry);
+  inode = nullfs_get_inode(dir->i_sb, dir, masked, 0, dentry);
 #endif
   if (!inode)
     return -ENOSPC;
