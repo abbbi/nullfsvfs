@@ -1,3 +1,9 @@
+nullfsvfs (0.26) unstable; urgency=medium
+
+  * Add umask handling
+
+ -- Michael Ablassmeier <abi@debian.org>  Thu, 05 Mar 2026 19:44:27 +0100
+
 nullfsvfs (0.25) unstable; urgency=medium
 
   * Fix build on kernel versions 7.0-rc1
