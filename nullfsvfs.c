@@ -120,7 +120,7 @@ static int nullfs_parse_param(struct fs_context *fc,
     break;
   case Opt_write:
     fsi->mount_opts.write = param->string;
-    strncpy(exclude, param->string, strlen(param->string));
+    strscpy(exclude, param->string, strlen(param->string));
     break;
   }
 
@@ -197,7 +197,7 @@ static ssize_t exclude_store(struct kobject *kobj, struct kobj_attribute *attr,
   p = strchr(buf, '\n');
   if (p)
     *p = '\0';
-  strncpy(exclude, buf, sizeof(exclude));
+  strscpy(exclude, buf, sizeof(exclude));
   printk(KERN_INFO "nullfsvfs: will keep data for files matching: [%s]\n",
          exclude);
   return count;
@@ -784,7 +784,20 @@ struct dentry *
 nullfs_mount_nodev(struct file_system_type *fs_type, int flags, void *data,
                    int (*fill_super)(struct super_block *, void *, int)) {
   int error;
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(7, 2, 0)
   struct super_block *s = sget(fs_type, NULL, set_anon_super, flags, NULL);
+#else
+  struct super_block *s;
+  struct fs_context *fc;
+
+  fc = fs_context_for_mount(fs_type, 0);
+  if (IS_ERR(fc)) {
+    return ERR_CAST(fc);
+  }
+  s = sget_fc(fc, NULL, set_anon_super_fc);
+  put_fs_context(fc);
+#endif
 
   if (IS_ERR(s))
     return ERR_CAST(s);
