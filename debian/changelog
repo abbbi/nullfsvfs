@@ -1,3 +1,9 @@
+nullfsvfs (0.28) unstable; urgency=medium
+
+  * Fix build on kernel versions 7.3
+
+ -- Michael Ablassmeier <abi@debian.org>  Mon, 16 Nov 2026 17:52:29 +0100
+
 nullfsvfs (0.27) unstable; urgency=medium
 
   * Fix build on kernel versions 7.2

@@ -47,7 +47,7 @@
 #define NULLFS_MAGIC 0x19980123
 #define NULLFS_DEFAULT_MODE 0755
 #define NULLFS_SYSFS_MODE 0644
-#define NULLFS_VERSION "0.27"
+#define NULLFS_VERSION "0.28"
 
 MODULE_AUTHOR("Michael Ablassmeier");
 MODULE_LICENSE("GPL");
@@ -121,7 +121,7 @@ static int nullfs_parse_param(struct fs_context *fc,
     break;
   case Opt_write:
     fsi->mount_opts.write = param->string;
-    strscpy(exclude, param->string, strlen(param->string));
+    strscpy(exclude, param->string, sizeof(exclude));
     break;
   }
 
@@ -263,7 +263,11 @@ static ssize_t write_null(struct file *filp, const char *buf, size_t count,
    * keep track of size
    **/
   struct inode *inode = file_inode(filp);
-  i_size_write(inode, (inode->i_size + count));
+  if (filp->f_flags & O_APPEND)
+    *offset = i_size_read(inode);
+  *offset += count;
+  if (*offset > i_size_read(inode))
+    i_size_write(inode, *offset);
   return count;
 }
 
@@ -618,7 +622,10 @@ static int nullfs_symlink(struct inode *dir, struct dentry *dentry,
   return error;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 3, 0)
+static int nullfs_create(struct mnt_idmap *idmap, struct inode *dir,
+                         struct dentry *dentry, umode_t mode)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
 static int nullfs_create(struct mnt_idmap *idmap, struct inode *dir,
                          struct dentry *dentry, umode_t mode, bool excl)
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)

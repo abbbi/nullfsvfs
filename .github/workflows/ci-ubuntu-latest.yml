@@ -42,6 +42,8 @@ jobs:
     - name: Test file
       run: sudo dd if=/dev/zero of=/mnt/direct bs=1M count=1953
     - name: Test filesize
-      run: sudo stat --printf '%s' /mnt/direct | grep 2047868928
+      run: |
+        sudo stat /mnt/direct
+        test "$(sudo stat --printf '%s' /mnt/direct)" = 2047868928
     - name: Umount nullfsvfs
       run: sudo umount /mnt
