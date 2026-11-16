@@ -618,7 +618,10 @@ static int nullfs_symlink(struct inode *dir, struct dentry *dentry,
   return error;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 3, 0)
+static int nullfs_create(struct mnt_idmap *idmap, struct inode *dir,
+                         struct dentry *dentry, umode_t mode)
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
 static int nullfs_create(struct mnt_idmap *idmap, struct inode *dir,
                          struct dentry *dentry, umode_t mode, bool excl)
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
